@@ -4,29 +4,40 @@ module.exports = function (grunt) {
     grunt.initConfig({
         // Склеиваем
         concat: {
-            common: {
+            main: {
                 src: [
-                    'js_src/base.js'
+                    'main/js/base.js'
                 ],
-                dest: 'js/base.js'
+                dest: 'main/js/_main_.js'
             },
             users: {
                 src: [
-                    '../users/static/js/*.js'
+                    'users/js/*.js'
                 ],
-                dest: 'js/users.js'
+                dest: 'users/js/_users_.js'
+            },
+            inventory: {
+                src: [
+                    'inventory/js/*.js'
+                ],
+                dest: 'inventory/js/_inventory_.js'
             }
         },
         // Сжимаем js
         uglify: {
             base: {
                 files: {
-                    'js/base.min.js': '<%= concat.base.dest %>'
+                    '../dest/js/main.min.js': '<%= concat.main.dest %>'
                 }
             },
             users: {
                 files: {
-                    'js/users.min.js': '<%= concat.users.dest %>'
+                    '../../users/static/js/users.min.js': '<%= concat.users.dest %>'
+                }
+            },
+            inventory: {
+                files: {
+                    '../../inventory/static/js/inventory.min.js': '<%= concat.inventory.dest %>'
                 }
             }
         },
@@ -34,53 +45,57 @@ module.exports = function (grunt) {
         sass: {
             dist: {
                 files: {
-                    'css/base.css': 'css_src/base.scss',
-                    'css/index.css': 'css_src/index.scss',
-                    'css/login.css': 'css_src/login.scss',
-                    'css/pattern.css': 'css_src/pattern.scss'
+                    'main/css/base.css': 'main/css/base.scss',
+                    'users/css/index.css': 'users/css/index.scss',
+                    'inventory/css/index.css': 'inventory/css/index.scss'
                 }
             }
         },
         // Сжимаем css
         cssmin: {
-            base: {
-                src: 'css/base.css',
-                dest: 'css/base.min.css'
+            main: {
+                src: 'main/css/base.css',
+                dest: '../dest/css/main.min.css'
             },
-            index: {
-                src: 'css/index.css',
-                dest: 'css/index.min.css'
+            users: {
+                src: 'users/css/index.css',
+                dest: '../../users/css/users.min.css'
             },
-            login: {
-                src: 'css/login.css',
-                dest: 'css/login.min.css'
-            },
-            pattern: {
-                src: 'css/pattern.css',
-                dest: 'css/pattern.min.css'
+            inventory: {
+                src: 'inventory/css/index.css',
+                dest: '../../inventory/css/inventory.min.css'
             }
         },
-        copy: {
-            fonts: {
-                expand: true,
-                cwd: 'bootstrap-3.1.1/fonts/',
-                src: '**',
-                dest: 'fonts/',
-                flatten: true
-            }
-        },
+//        copy: {
+//            fonts: {
+//                expand: true,
+//                cwd: 'bootstrap-3.1.1/fonts/',
+//                src: '**',
+//                dest: 'fonts/',
+//                flatten: true
+//            }
+//        },
         // Следим за изменениями
         watch: {
+            options: {
+                livereload: true
+            },
             scripts: {
                 files: [
-                    'js_src/*.js',
-                    '../account/static/js/*.js',
-                    '../pages/static/js/*.js'
+                    '**/*.js',
+                    '!main/js/_main_.js',
+                    '!users/js/_users_.js',
+                    '!inventory/js/_inventory_.js'
                 ],
-                tasks: ['concat', 'uglify'],
-                options: {
-                    spawn: false
-                }
+                tasks: ['concat', 'uglify']
+            },
+            sass: {
+                files: ['**/*.scss'],
+                tasks: ['sass']
+            },
+            styles: {
+                files: ['**/*.css'],
+                tasks: ['cssmin']
             }
         }
     });
@@ -89,8 +104,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-sass');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-contrib-copy');
+//    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-watch');
     // Задача по умолчанию
-    grunt.registerTask('default', ['concat', 'uglify', 'sass', 'cssmin', 'copy']);
+    grunt.registerTask('default', ['concat', 'uglify', 'sass', 'cssmin']);
 };
