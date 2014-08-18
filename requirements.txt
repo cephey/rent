@@ -1,4 +1,5 @@
 -e git://github.com/django/django.git@b4c80238a2b6c3f9fb7437d216082315c601055b#egg=Django-dev
+Pillow==2.5.2
 argparse==1.2.1
 django-grappelli==2.5.3
 -e git://github.com/cephey/django-tastypie.git@7c666a35662ff111b35a5090b856b8fe21d1708f#egg=django_tastypie-master

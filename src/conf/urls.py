@@ -6,6 +6,8 @@ urlpatterns = patterns('',
     # url(r'^$', 'conf.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
-    (r'^grappelli/', include('grappelli.urls')),
+    url(r'^users/', include('users.urls', namespace='users')),
+
+    url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )

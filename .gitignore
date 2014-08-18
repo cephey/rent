@@ -54,3 +54,7 @@ docs/_build/
 
 # idea
 .idea/*
+
+# npm
+src/static_src/src/node_modules
+src/static_src/src/.sass-cache
