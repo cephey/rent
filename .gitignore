@@ -58,3 +58,5 @@ docs/_build/
 # npm
 src/static_src/src/node_modules
 src/static_src/src/.sass-cache
+src/static_src/src/**/*.css
+src/static_src/src/**/*_.js

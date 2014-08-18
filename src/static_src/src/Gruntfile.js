@@ -6,19 +6,19 @@ module.exports = function (grunt) {
         concat: {
             main: {
                 src: [
-                    'main/js/base.js'
+                    'main/js/*.js', '!main/js/_main_.js'
                 ],
                 dest: 'main/js/_main_.js'
             },
             users: {
                 src: [
-                    'users/js/*.js'
+                    'users/js/*.js', '!users/js/_users_.js'
                 ],
                 dest: 'users/js/_users_.js'
             },
             inventory: {
                 src: [
-                    'inventory/js/*.js'
+                    'inventory/js/*.js', '!inventory/js/_inventory_.js'
                 ],
                 dest: 'inventory/js/_inventory_.js'
             }
@@ -59,11 +59,11 @@ module.exports = function (grunt) {
             },
             users: {
                 src: 'users/css/index.css',
-                dest: '../../users/css/users.min.css'
+                dest: '../../users/static/css/users.min.css'
             },
             inventory: {
                 src: 'inventory/css/index.css',
-                dest: '../../inventory/css/inventory.min.css'
+                dest: '../../inventory/static/css/inventory.min.css'
             }
         },
 //        copy: {
