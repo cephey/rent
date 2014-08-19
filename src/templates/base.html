@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}RENT{% endblock %}</title>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -14,10 +14,176 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    {% block body %}{% endblock %}
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{% url 'pages:index' %}">SB Admin</a>
+            </div>
+
+            <!-- Top Menu Items -->
+            <ul class="nav navbar-right top-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-envelope"></i> <b class="caret"></b></a>
+                    <ul class="dropdown-menu message-dropdown">
+                        <li class="message-preview">
+                            <a href="#">
+                                <div class="media">
+                                    <span class="pull-left">
+                                        <img class="media-object" src="http://placehold.it/50x50" alt="">
+                                    </span>
+                                    <div class="media-body">
+                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        </h5>
+                                        <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
+                                        <p>Lorem ipsum dolor sit amet, consectetur...</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="message-preview">
+                            <a href="#">
+                                <div class="media">
+                                    <span class="pull-left">
+                                        <img class="media-object" src="http://placehold.it/50x50" alt="">
+                                    </span>
+                                    <div class="media-body">
+                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        </h5>
+                                        <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
+                                        <p>Lorem ipsum dolor sit amet, consectetur...</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="message-preview">
+                            <a href="#">
+                                <div class="media">
+                                    <span class="pull-left">
+                                        <img class="media-object" src="http://placehold.it/50x50" alt="">
+                                    </span>
+                                    <div class="media-body">
+                                        <h5 class="media-heading"><strong>John Smith</strong>
+                                        </h5>
+                                        <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
+                                        <p>Lorem ipsum dolor sit amet, consectetur...</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="message-footer">
+                            <a href="#">Read All New Messages</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> <b class="caret"></b></a>
+                    <ul class="dropdown-menu alert-dropdown">
+                        <li>
+                            <a href="#">Alert Name <span class="label label-default">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-primary">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-success">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-info">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-warning">Alert Badge</span></a>
+                        </li>
+                        <li>
+                            <a href="#">Alert Name <span class="label label-danger">Alert Badge</span></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">View All</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav side-nav">
+                    <li class="{% block menu_index %}{% endblock %}">
+                        <a href="{% url 'pages:index' %}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+                    </li>
+                    <li class="{% block menu_charts %}{% endblock %}">
+                        <a href="{% url 'pages:charts' %}"><i class="fa fa-fw fa-bar-chart-o"></i> Charts</a>
+                    </li>
+                    <li class="{% block menu_tables %}{% endblock %}">
+                        <a href="{% url 'pages:tables' %}"><i class="fa fa-fw fa-table"></i> Tables</a>
+                    </li>
+                    <li class="{% block menu_forms %}{% endblock %}">
+                        <a href="{% url 'pages:forms' %}"><i class="fa fa-fw fa-edit"></i> Forms</a>
+                    </li>
+                    <li class="{% block menu_elements %}{% endblock %}">
+                        <a href="{% url 'pages:elements' %}"><i class="fa fa-fw fa-desktop"></i> Bootstrap Elements</a>
+                    </li>
+                    <li class="{% block menu_grid %}{% endblock %}">
+                        <a href="{% url 'pages:grid' %}"><i class="fa fa-fw fa-wrench"></i> Bootstrap Grid</a>
+                    </li>
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Dropdown <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="demo" class="collapse">
+                            <li>
+                                <a href="#">Dropdown Item</a>
+                            </li>
+                            <li>
+                                <a href="#">Dropdown Item</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="{% block menu_blank %}{% endblock %}">
+                        <a href="{% url 'pages:blank' %}"><i class="fa fa-fw fa-file"></i> Blank Page</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </nav>
+
+        <div id="page-wrapper">
+            <div class="container-fluid">
+                {% block container %}{% endblock %}
+            </div>
+        </div>
+
+    </div>
+    <!-- /#wrapper -->
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src="{{ STATIC_URL }}js/main.min.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
