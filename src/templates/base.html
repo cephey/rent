@@ -28,7 +28,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{% url 'pages:index' %}">SB Admin</a>
+                <a class="navbar-brand" href="{% url 'pages:index' %}">RENT</a>
             </div>
 
             <!-- Top Menu Items -->
@@ -138,6 +138,9 @@
                 <ul class="nav navbar-nav side-nav">
                     <li class="{% block menu_index %}{% endblock %}">
                         <a href="{% url 'pages:index' %}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+                    </li>
+                    <li class="{% block menu_new_user %}{% endblock %}">
+                        <a href="{% url 'users:create' %}"><i class="fa fa-fw fa-user"></i> Новый клиент</a>
                     </li>
                     <li class="{% block menu_charts %}{% endblock %}">
                         <a href="{% url 'pages:charts' %}"><i class="fa fa-fw fa-bar-chart-o"></i> Charts</a>

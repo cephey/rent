@@ -1,14 +1,90 @@
 {% extends 'base.html' %}
+{% load css_class %}
 
 {% block title %}Создание нового клиента{% endblock %}
 
-{% block body %}
-    <div class="container">
-        <h1>Создание нового клиента</h1>
-        <form action="" method="post">{% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Создать" />
+{% block menu_new_user %}active{% endblock %}
+
+{% block container %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Новый клиент
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-users"></i> <a href="#">Клиенты</a>
+                </li>
+                <li class="active">
+                    <i class="fa fa-user"></i> Новый клиент
+                </li>
+            </ol>
+        </div>
+    </div>
+    <!-- /.row -->
+
+    <div class="row">
+    <div class="col-lg-6">
+
+        <form role="form" action="" method="post">{% csrf_token %}
+
+            <div class="form-group">
+                {{ form.first_name.errors }}
+                {{ form.first_name.label_tag }}
+                {{ form.first_name|add_attributes:"form-control" }}
+                <p class="help-block">{{ form.first_name.help_text }}</p>
+            </div>
+            <div class="form-group">
+                {{ form.last_name.errors }}
+                {{ form.last_name.label_tag }}
+                {{ form.last_name|add_attributes:"form-control" }}
+                <p class="help-block">{{ form.last_name.help_text }}</p>
+            </div>
+            <div class="form-group">
+                {{ form.patronymic.errors }}
+                {{ form.patronymic.label_tag }}
+                {{ form.patronymic|add_attributes:"form-control" }}
+                <p class="help-block">{{ form.patronymic.help_text }}</p>
+            </div>
+            <div class="form-group">
+                {{ form.photo.errors }}
+                {{ form.photo.label_tag }}
+                {{ form.photo }}
+            </div>
+            <div class="form-group">
+                {{ form.passport.errors }}
+                {{ form.passport.label_tag }}
+                {{ form.passport|add_attributes:"form-control" }}
+                <p class="help-block">{{ form.passport.help_text }}</p>
+            </div>
+            <div class="form-group">
+                {{ form.travel_passport.errors }}
+                {{ form.travel_passport.label_tag }}
+                {{ form.travel_passport|add_attributes:"form-control" }}
+                <p class="help-block">{{ form.travel_passport.help_text }}</p>
+            </div>
+            <div class="form-group">
+                {{ form.drive_license.errors }}
+                {{ form.drive_license.label_tag }}
+                {{ form.drive_license|add_attributes:"form-control" }}
+                <p class="help-block">{{ form.drive_license.help_text }}</p>
+            </div>
+            <div class="form-group">
+                {{ form.phone.errors }}
+                {{ form.phone.label_tag }}
+                {{ form.phone|add_attributes:"form-control" }}
+                <p class="help-block">{{ form.phone.help_text }}</p>
+            </div>
+            <div class="form-group">
+                {{ form.partner.errors }}
+                {{ form.partner.label_tag }}
+                {{ form.partner|add_attributes:"form-control" }}
+                <p class="help-block">{{ form.partner.help_text }}</p>
+            </div>
+            <button class="btn btn-primary pull-right" type="submit">Создать</button>
         </form>
+    </div>
     </div>
 {% endblock %}
 
