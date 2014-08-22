@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load css_class %}
+
+{% block title %}Создание нового клиента - Привязка карты{% endblock %}
+
+{% block menu_new_user %}active{% endblock %}
+
+{% block container %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Новый клиент
+                <small>Привязка карты</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-users"></i> <a href="#">Клиенты</a>
+                </li>
+                <li class="active">
+                    <i class="fa fa-user"></i> Новый клиент
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <form role="form" action="" method="post">{% csrf_token %}
+
+            {{ form.user }}
+
+            <div class="col-lg-6">
+                <!-- Номер карты -->
+                <div class="form-group">
+                    {% if form.article.errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{ form.article.label }}</strong>
+                            {{ form.article.errors }}
+                        </div>
+                    {% endif %}
+                    {{ form.article.label_tag }}
+                    {{ form.article }}
+                    <p class="help-block">{{ form.article.help_text }}</p>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <button class="btn btn-primary" type="submit">OK</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/users.min.css">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ STATIC_URL }}js/users.min.js"></script>
+{% endblock %}

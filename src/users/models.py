@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
-from .managers import UserManager
+from .managers import UserManager, SmsManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -20,7 +20,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(_('staff status'), default=False,
         help_text=_('Designates whether the user can log into this admin '
                     'site.'))
-    is_active = models.BooleanField(_('active'), default=True,
+    is_active = models.BooleanField(_('active'), default=False,
         help_text=_('Designates whether this user should be treated as '
                     'active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
@@ -78,9 +78,12 @@ class Sms(models.Model):
     code = models.PositiveIntegerField(_('Code'))
     create_at = models.DateTimeField(_('Create date'), default=timezone.now)
 
+    objects = SmsManager()
+
     class Meta:
         verbose_name = _('sms')
         verbose_name_plural = _('sms')
+        ordering = ['-create_at']
 
     def __unicode__(self):
         return u'Code {} for user {}'.format(self.code, self.user)
@@ -88,7 +91,8 @@ class Sms(models.Model):
 
 class Card(models.Model):
 
-    article = models.CharField(_('Article'), max_length=16)
+    article = models.CharField(u'Номер карты', max_length=16,
+                               help_text=u'Сканируйте штрих код карты для привязки ее к клиенту')
     user = models.ForeignKey('users.User')
 
     class Meta:

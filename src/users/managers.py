@@ -1,11 +1,19 @@
 #coding:utf-8
 from django.contrib.auth.models import BaseUserManager
+from django.shortcuts import get_object_or_404
+from django.db.models.loading import get_model
 from django.utils import timezone
+from django.db import models
+
+import random
+import logging
+
+logger = logging.getLogger('sms')
 
 
 class UserManager(BaseUserManager):
 
-    def _create_user(self, email, password,is_staff,
+    def _create_user(self, email, password, is_staff,
                      is_superuser, **extra_fields):
 
         now = timezone.now()
@@ -26,3 +34,19 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password, **extra_fields):
         return self._create_user(email, password, True, True,
                                  **extra_fields)
+
+    def activate(self, id, code):
+        Sms = get_model('users', 'Sms')
+        if Sms.objects.filter(user__id=id, code=code).exists():
+            Sms.objects.filter(user__id=id, code=code).delete()
+            self.filter(id=id).update(is_active=True)
+
+
+class SmsManager(models.Manager):
+
+    def send_sms_code(self, user_id):
+        user = get_object_or_404(get_model('users', 'User'), pk=user_id)
+        code = random.randint(100000, 999999)
+        self.create(user=user, code=code)
+        # SEND CODE TO PHONE
+        logger.info('Code is {}'.format(code))

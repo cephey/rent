@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load css_class %}
+
+{% block title %}Создание нового клиента - Готово{% endblock %}
+
+{% block menu_new_user %}active{% endblock %}
+
+{% block container %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Новый клиент
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-users"></i> <a href="#">Клиенты</a>
+                </li>
+                <li class="active">
+                    <i class="fa fa-user"></i> Новый клиент
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <h3>Новый клиент успешно создан</h3>
+            <p>Перейти <a href="#">Сюда</a></p>
+            <p>Перейти <a href="#">Туда</a></p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/users.min.css">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ STATIC_URL }}js/users.min.js"></script>
+{% endblock %}

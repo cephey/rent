@@ -21,6 +21,10 @@ module.exports = function (grunt) {
                     'pages/js/float/flot-data.js'
                 ],
                 dest: 'pages/js/_float_.js'
+            },
+            users: {
+                src: ['users/js/scripts/scripts.js'],
+                dest: 'users/js/_scripts_.js'
             }
         },
         // Сжимаем js
@@ -34,6 +38,11 @@ module.exports = function (grunt) {
                 files: {
                     '../../pages/static/js/pages_float.min.js': '<%= concat.pages_float.dest %>'
                 }
+            },
+            users: {
+                files: {
+                    '../../users/static/js/users.min.js': '<%= concat.users.dest %>'
+                }
             }
         },
         // SASS -> CSS
@@ -43,6 +52,7 @@ module.exports = function (grunt) {
                     'main/css/base.css': 'main/css/base.scss',
                     'main/css/morris.css': 'main/css/morris.scss',
                     'main/css/font-awesome.css': 'main/css/font-awesome.scss',
+                    'users/css/styles.css': 'users/css/styles.scss'
                 }
             }
         },
@@ -55,6 +65,10 @@ module.exports = function (grunt) {
                     'main/css/font-awesome.css'
                 ],
                 dest: '../dest/css/main.min.css'
+            },
+            users: {
+                src: ['users/css/styles.css'],
+                dest: '../../users/static/css/users.min.css'
             }
         },
         copy: {
@@ -70,6 +84,13 @@ module.exports = function (grunt) {
                 cwd: 'pages/js/float/',
                 src: 'excanvas.min.js',
                 dest: '../../pages/static/js/',
+                flatten: true
+            },
+            main_img: {
+                expand: true,
+                cwd: 'main/img/',
+                src: 'default_user.jpg',
+                dest: '../dest/img/',
                 flatten: true
             }
         },

@@ -28,9 +28,13 @@ class UserAdmin(BaseUserAdmin):
     )
     form = UserChangeForm
     add_form = UserCreationForm
-    list_display = ('email', 'first_name', 'last_name', 'patronymic', 'is_staff')
+    list_display = ('get_display', 'first_name', 'last_name', 'patronymic', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name', 'patronymic')
     ordering = ('email',)
+
+    def get_display(self, obj):
+        return obj.email if obj.email else obj.id
+    get_display.short_description = 'email'
 
 admin.site.register(User, UserAdmin)
 
