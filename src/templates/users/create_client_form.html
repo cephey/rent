@@ -14,7 +14,7 @@
             </h1>
             <ol class="breadcrumb">
                 <li>
-                    <i class="fa fa-users"></i> <a href="#">Клиенты</a>
+                    <i class="fa fa-users"></i> <a href="{% url 'users:all' %}">Клиенты</a>
                 </li>
                 <li class="active">
                     <i class="fa fa-user"></i> Новый клиент
@@ -25,7 +25,7 @@
     <!-- /.row -->
 
     <div class="row">
-        <form role="form" action="" method="post">{% csrf_token %}
+        <form role="form" action="" method="post" enctype="multipart/form-data">{% csrf_token %}
 
             {{ form.email }}
 

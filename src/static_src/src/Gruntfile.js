@@ -12,6 +12,12 @@ module.exports = function (grunt) {
                 ],
                 dest: 'main/js/_morris_.js'
             },
+            main_util: {
+                src: [
+                    'main/js/util/cookies.js'
+                ],
+                dest: 'main/js/_util_.js'
+            },
             pages_float: {
                 src: [
                     'pages/js/float/jquery.flot.js',
@@ -25,6 +31,10 @@ module.exports = function (grunt) {
             users: {
                 src: ['users/js/scripts/scripts.js'],
                 dest: 'users/js/_scripts_.js'
+            },
+            users_card: {
+                src: ['users/js/card/check_card.js'],
+                dest: 'users/js/_card_.js'
             }
         },
         // Сжимаем js
@@ -32,6 +42,11 @@ module.exports = function (grunt) {
             main_morris: {
                 files: {
                     '../dest/js/main_morris.min.js': '<%= concat.main_morris.dest %>'
+                }
+            },
+            main_util:{
+                files: {
+                    '../dest/js/main_util.min.js': '<%= concat.main_util.dest %>'
                 }
             },
             pages_float: {
@@ -42,6 +57,11 @@ module.exports = function (grunt) {
             users: {
                 files: {
                     '../../users/static/js/users.min.js': '<%= concat.users.dest %>'
+                }
+            },
+            users_card: {
+                files: {
+                    '../../users/static/js/check_card.min.js': '<%= concat.users_card.dest %>'
                 }
             }
         },

@@ -1,11 +1,18 @@
 #coding:utf-8
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView, CreateView
+from django.utils.decorators import method_decorator
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.core import serializers
 
-from .forms import CreateClientForm, SmsConfirmForm, CardCreateForm
+from .forms import CreateClientForm, SmsConfirmForm, CardCreateForm, CardCheckForm
 from .models import User, Sms
+from inventory.models import Reserve
+from tools.decorators import ajax_required
 
 import uuid
+import json
 
 
 class CreateClientView(CreateView):
@@ -67,3 +74,30 @@ class UserAddCardView(CreateView):
     def get_success_url(self):
         self.success_url = reverse_lazy('users:create_success', kwargs={'user': self.user_id})
         return super(UserAddCardView, self).get_success_url()
+
+
+class CardCheckView(FormView):
+    template_name = 'users/card_check_form.html'
+    form_class = CardCheckForm
+
+    @method_decorator(ajax_required)
+    def post(self, request, *args, **kwargs):
+        return super(CardCheckView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        user = get_object_or_404(User, card__article=form.cleaned_data['card'])
+
+        json_user = json.loads(
+            serializers.serialize("json", [user], fields=(
+                'first_name', 'last_name', 'patronymic', 'passport',
+                'travel_passport', 'drive_license')))
+        json_user[0]['fields']['photo_url'] = user.photo.url
+
+        res = Reserve.objects.filter(user=user).first()
+        reserve_url = res.get_absolute_url() if res else \
+            str(reverse_lazy('inventory:reserve_create',
+                             kwargs={'user': user.id}))
+
+        return JsonResponse({'status': 'success',
+                             'user': json.dumps(json_user),
+                             'reserve': reserve_url})

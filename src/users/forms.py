@@ -72,3 +72,10 @@ class CardCreateForm(forms.ModelForm):
 
     class Meta:
         model = Card
+
+
+class CardCheckForm(forms.Form):
+
+    card = forms.CharField(label=u'Номер карты', max_length=16,
+                           widget=forms.TextInput(attrs={
+                               'placeholder': u'Номер карты'}))

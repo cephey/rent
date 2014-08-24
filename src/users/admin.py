@@ -7,6 +7,7 @@ from .models import User, Partner, Sms, Card
 from forms import UserChangeForm, UserCreationForm
 
 
+@admin.register(User)
 class UserAdmin(BaseUserAdmin):
 
     fieldsets = (
@@ -36,22 +37,17 @@ class UserAdmin(BaseUserAdmin):
         return obj.email if obj.email else obj.id
     get_display.short_description = 'email'
 
-admin.site.register(User, UserAdmin)
 
-
+@admin.register(Partner)
 class PartnerAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(Partner, PartnerAdmin)
 
-
+@admin.register(Sms)
 class SmsAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(Sms, SmsAdmin)
 
-
+@admin.register(Card)
 class CardAdmin(admin.ModelAdmin):
     pass
-
-admin.site.register(Card, CardAdmin)

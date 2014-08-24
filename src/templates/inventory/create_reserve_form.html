@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load css_class %}
+
+{% block title %}Аренда{% endblock %}
+
+{% block menu_reserve %}active{% endblock %}
+
+{% block container %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Аренда
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-tree"></i> <a href="{% url 'inventory:all' %}">Инвентарь</a>
+                </li>
+                <li class="active">
+                    <i class="fa fa-cogs"></i> Аренда
+                </li>
+            </ol>
+        </div>
+    </div>
+    <!-- /.row -->
+
+    <div class="row">
+        <form role="form" action="" method="post">{% csrf_token %}
+
+            {{ form.user }}
+
+            <div class="col-lg-6">
+                <h2>В наличии</h2>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Осталось в шт.</th>
+                                <th>Свойства</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in ea_table %}
+                                <tr>
+                                    {% for item in row %}
+                                        <td>{{ item }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            {#            <div class="col-lg-6">#}
+            {#                <!-- Карта -->#}
+            {#                <div class="form-group">#}
+            {#                    {{ form.card.errors }}#}
+            {#                    {{ form.card.label_tag }}#}
+            {#                    {{ form.card|add_attributes:"form-control" }}#}
+            {#                    <p class="help-block">{{ form.card.help_text }}</p>#}
+            {#                </div>#}
+            {#            </div>#}
+            {#            <div class="col-lg-6">#}
+            {#                <!-- Данные клиента -->#}
+            {#                <div class="form-group">#}
+            {#                    <label>Данные клиента:</label>#}
+            {#                    {{ form.fio.errors }}#}
+            {#                    {{ form.fio|add_attributes:"form-control" }}#}
+            {#                    <p class="help-block">{{ form.fio.help_text }}</p>#}
+            {#                </div>#}
+            {#                <div class="form-group">#}
+            {#                    {{ form.doc_type.errors }}#}
+            {#                    {{ form.doc_type.label_tag }}#}
+            {#                    {{ form.doc_type|add_attributes:"form-control" }}#}
+            {#                    <p class="help-block">{{ form.doc_type.help_text }}</p>#}
+            {#                </div>#}
+            {#                <div class="form-group">#}
+            {#                    {{ form.doc_number.errors }}#}
+            {#                    {{ form.doc_number|add_attributes:"form-control" }}#}
+            {#                    <p class="help-block">{{ form.doc_number.help_text }}</p>#}
+            {#                </div>#}
+            {#            </div>#}
+            {#            <div class="col-lg-12">#}
+            {#                <hr/>#}
+            {#            </div>#}
+            {#            <div class="col-lg-6 col-lg-offset-6">#}
+            {#                <div class="form-group">#}
+            {#                    <label for="id_id">Номер брони:</label>#}
+            {#                    <input id="id_id" class="form-control" type="text" name="id" maxlength="255">#}
+            {#                </div>#}
+            {#            </div>#}
+            {#            <div class="col-lg-12">#}
+            {#                <hr/>#}
+            {#            </div>#}
+            {#            <div class="col-lg-12">#}
+            {#                <button class="btn btn-primary" type="submit">Создать</button>#}
+            {#            </div>#}
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

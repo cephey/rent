@@ -117,8 +117,11 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
+                            <a href="{% url 'admin:index' %}"><i class="fa fa-fw fa-qq"></i> Admin</a>
                         </li>
+{#                        <li>#}
+{#                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>#}
+{#                        </li>#}
                         <li>
                             <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
                         </li>
@@ -142,6 +145,12 @@
                     <li class="{% block menu_new_user %}{% endblock %}">
                         <a href="{% url 'users:create' %}"><i class="fa fa-fw fa-user"></i> Новый клиент</a>
                     </li>
+                    <li class="{% block menu_card_check %}{% endblock %}">
+                        <a href="{% url 'users:card_check' %}"><i class="fa fa-fw fa-credit-card"></i> По карте</a>
+                    </li>
+{#                    <li class="{% block menu_reserve %}{% endblock %}">#}
+{#                        <a href="{% url 'inventory:reserve' %}"><i class="fa fa-fw fa-tree"></i> Аренда</a>#}
+{#                    </li>#}
                     <li class="{% block menu_charts %}{% endblock %}">
                         <a href="{% url 'pages:charts' %}"><i class="fa fa-fw fa-bar-chart-o"></i> Charts</a>
                     </li>
@@ -187,6 +196,7 @@
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="{{ STATIC_URL }}js/main_util.min.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
