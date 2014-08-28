@@ -18,16 +18,12 @@ class PropertyInline(admin.TabularInline):
 
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    list_display = ('type', 'article', 'count', 'get_props')
+    list_display = ('type', 'article', 'count', '_property')
     inlines = [PropertyInline]
 
-    def get_props(self, obj):
-        props = obj.property_set.filter(general=True)
-        buf = u''
-        for prop in props:
-            buf += u'{}: {}, '.format(prop.type.name, prop.value)
-        return buf
-    get_props.short_description = u'Основные свойства'
+    def _property(self, obj):
+        return ','.join([u'{}: {}'.format(name, val) for name, val in obj.get_props()])
+    _property.short_description = u'Основные свойства'
 
     def response_add(self, request, new_object, post_url_continue=None):
         obj = self.after_saving_model_and_related_inlines(new_object)
@@ -38,10 +34,11 @@ class EquipmentAdmin(admin.ModelAdmin):
         return super(EquipmentAdmin, self).response_change(request, obj)
 
     def after_saving_model_and_related_inlines(self, obj):
+        # вычисляю хеш (тип + основные свойства)
         props = obj.property_set.filter(general=True)
-        hash_base = ''
-        for prop in props:
-            hash_base += u'{}_{}_'.format(prop.type.name, prop.value)
+        hash_base = u'_'.join([
+            obj.type.name,
+            u'_'.join([u'{}_{}'.format(p.type.name, p.value) for p in props])])
         obj.hash = hashlib.md5(hash_base.encode('utf-8')).hexdigest()
         obj.save()
 
@@ -78,16 +75,11 @@ class PropertyAdmin(admin.ModelAdmin):
 
 @admin.register(EA)
 class EAAdmin(admin.ModelAdmin):
-    list_display = ('type', 'count_in', 'count_out', 'get_props')
+    list_display = ('type', 'count_in', 'count_out', '_property')
 
-    def get_props(self, obj):
-        props = set(Property.objects.filter(equipment__hash=obj.hash)
-                    .values_list('type__name', 'value'))
-        buf = u''
-        for name, value in props:
-            buf += u'{}: {}, '.format(name, value)
-        return buf
-    get_props.short_description = u'Основные свойства'
+    def _property(self, obj):
+        return ','.join([u'{}: {}'.format(name, val) for name, val in obj.get_props()])
+    _property.short_description = u'Основные свойства'
 
 
 @admin.register(Reserve)

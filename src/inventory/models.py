@@ -4,6 +4,9 @@ from django.db.models.signals import post_delete
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse_lazy
 
+from .managers import EAManager
+from helpers import get_cache_props
+
 import hashlib
 
 
@@ -31,6 +34,10 @@ class Equipment(models.Model):
         ordering = ['type']
         verbose_name = _('equipment')
         verbose_name_plural = _('equipments')
+
+    def get_props(self):
+        return self.property_set.filter(general=True)\
+            .values_list('type__name', 'value')
 
 
 def ea_normalize(sender, instance, **kwargs):
@@ -89,16 +96,33 @@ class EA(models.Model):
     count_out = models.PositiveIntegerField(u'Количество в аренде', blank=True, default=0)
     hash = models.CharField(u'Хеш', max_length=64, unique=True, editable=False)
 
+    objects = EAManager()
+
     class Meta:
         ordering = ['type']
         verbose_name = _('unit')
         verbose_name_plural = _('units')
 
+    def get_props(self):
+        return Property.objects.filter(equipment__hash=self.hash)\
+            .values_list('type__name', 'value').distinct()
+
 
 class Reserve(models.Model):
 
+    NEW = 'NEW'
+    RESERVE = 'RES'
+    PAID = 'PAID'
+    STATUSES = (
+        (NEW, 'Freshman'),
+        (RESERVE, 'Sophomore'),
+        (PAID, 'Junior'),
+    )
+
     user = models.ForeignKey('users.User', verbose_name=u'Клиент')
-    eas = models.ManyToManyField('inventory.EA')
+    equipments = models.ManyToManyField('inventory.Equipment',
+                                        through='inventory.ReserveEquipment')
+    status = models.CharField(max_length=4, choices=STATUSES, default=NEW)
 
     class Meta:
         verbose_name = _('reserve')
@@ -106,3 +130,22 @@ class Reserve(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('inventory:reserve', kwargs={'pk': self.pk})
+
+    def items(self):
+        inventory = self.reserveequipment_set.all()
+        reserve_dict = {}
+        for item in inventory:
+            key = item.equipment.hash
+            if key in reserve_dict:
+                reserve_dict[key][1] += 1
+            else:
+                reserve_dict[key] = [item.equipment.type.name, 1]
+
+        return [{'t': v[0], 'c': v[1], 'h': get_cache_props(h)}
+                for h, v in reserve_dict.items()]
+
+
+class ReserveEquipment(models.Model):
+
+    reserve = models.ForeignKey('inventory.Reserve')
+    equipment = models.ForeignKey('inventory.Equipment')

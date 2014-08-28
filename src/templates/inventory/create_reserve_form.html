@@ -25,81 +25,74 @@
     <!-- /.row -->
 
     <div class="row">
-        <form role="form" action="" method="post">{% csrf_token %}
 
-            {{ form.user }}
+        <!-- Таблица что есть в наличии -->
+        <div class="col-lg-5">
 
-            <div class="col-lg-6">
-                <h2>В наличии</h2>
+            <h3>Осталось</h3>
 
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th>Название</th>
-                                <th>Осталось в шт.</th>
-                                <th>Свойства</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in ea_table %}
-                                <tr>
-                                    {% for item in row %}
-                                        <td>{{ item }}</td>
-                                    {% endfor %}
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div id="inventory_left" class="table-responsive" data-url="{% url 'inventory:ea' %}">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Свойства</th>
+                        <th>Осталось в шт.</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="alert alert-danger" style="display:none">
+                <strong>Ошибка!</strong>
+                Сервер временно недоступен.
+            </div>
+        </div>
+
+        <!-- Форма для бронирования -->
+        <div class="col-lg-7">
+
+            <h3>Забронировал</h3>
+
+            <div id="inventory_reserve" class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Свойства</th>
+                        <th>Количество</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
 
+            <form id="ReserveEquipmentForm" role="form" action="" method="post">{% csrf_token %}
 
-            {#            <div class="col-lg-6">#}
-            {#                <!-- Карта -->#}
-            {#                <div class="form-group">#}
-            {#                    {{ form.card.errors }}#}
-            {#                    {{ form.card.label_tag }}#}
-            {#                    {{ form.card|add_attributes:"form-control" }}#}
-            {#                    <p class="help-block">{{ form.card.help_text }}</p>#}
-            {#                </div>#}
-            {#            </div>#}
-            {#            <div class="col-lg-6">#}
-            {#                <!-- Данные клиента -->#}
-            {#                <div class="form-group">#}
-            {#                    <label>Данные клиента:</label>#}
-            {#                    {{ form.fio.errors }}#}
-            {#                    {{ form.fio|add_attributes:"form-control" }}#}
-            {#                    <p class="help-block">{{ form.fio.help_text }}</p>#}
-            {#                </div>#}
-            {#                <div class="form-group">#}
-            {#                    {{ form.doc_type.errors }}#}
-            {#                    {{ form.doc_type.label_tag }}#}
-            {#                    {{ form.doc_type|add_attributes:"form-control" }}#}
-            {#                    <p class="help-block">{{ form.doc_type.help_text }}</p>#}
-            {#                </div>#}
-            {#                <div class="form-group">#}
-            {#                    {{ form.doc_number.errors }}#}
-            {#                    {{ form.doc_number|add_attributes:"form-control" }}#}
-            {#                    <p class="help-block">{{ form.doc_number.help_text }}</p>#}
-            {#                </div>#}
-            {#            </div>#}
-            {#            <div class="col-lg-12">#}
-            {#                <hr/>#}
-            {#            </div>#}
-            {#            <div class="col-lg-6 col-lg-offset-6">#}
-            {#                <div class="form-group">#}
-            {#                    <label for="id_id">Номер брони:</label>#}
-            {#                    <input id="id_id" class="form-control" type="text" name="id" maxlength="255">#}
-            {#                </div>#}
-            {#            </div>#}
-            {#            <div class="col-lg-12">#}
-            {#                <hr/>#}
-            {#            </div>#}
-            {#            <div class="col-lg-12">#}
-            {#                <button class="btn btn-primary" type="submit">Создать</button>#}
-            {#            </div>#}
-        </form>
+                <div id="err_block" style="display:none"></div>
+
+                <div class="form-group input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-barcode"></i>
+                    </span>
+                    {{ form.article }}
+                    {{ form.reserve }}
+                </div>
+
+            </form>
+
+            <div class="list-group">
+                <span class="list-group-item active">Добавлено</span>
+                <span class="list-group-item">Пусто</span>
+                {#                    <span class="list-group-item">#}
+                {#                        <button type="button" class="close" data-dismiss="alert">#}
+                {#                            <span aria-hidden="true">&times;</span>#}
+                {#                            <span class="sr-only">Close</span>#}
+                {#                        </button>#}
+                {#                        &nbsp;#}
+                {#                    </span>#}
+            </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -107,4 +100,96 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script>
+        document.getElementById('id_article').focus();
+
+        $(function () {
+
+            var get_reserve_table = function () {
+                var container = $('#inventory_left');
+                var tbody = container.find('tbody');
+                var err = container.next();
+
+                $.ajax({
+                    url: container.attr('data-url'),
+                    type: "GET",
+                    success: function (data) {
+                        err.hide();
+                        var rows = data.ea_table;
+                        var buf = '';
+                        for (var i in rows) {
+                            var field = rows[i];
+                            buf += '<tr><td>' + field.t + '</td><td>' + field.h + '</td><td>' + field.c + '</td></tr>';
+                        }
+                        tbody.html(buf);
+                    },
+                    error: function (jqXHR) {
+                        tbody.html('');
+                        err.show();
+                    }
+                });
+            };
+
+            get_reserve_table();
+
+            // каждые 10 секунд запрашиваю что есть на складе
+            setInterval(get_reserve_table, 1000000);
+
+            var reserve = function (e) {
+                var val = $(this).val();
+                var form = $('#ReserveEquipmentForm');
+                var err = $('#err_block');
+                err.hide();
+
+                if (val.length > 2) {
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: "POST",
+                        data: form.serialize(),
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", Cookie.getCookie('csrftoken'));
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            if (data.status === 'success') {
+
+                                var container = $('#inventory_reserve');
+                                var tbody = container.find('tbody');
+
+                                var rows = data.ea_table;
+                                var buf = '';
+                                for (var i in rows) {
+                                    var field = rows[i];
+                                    buf += '<tr><td>' + field.t + '</td><td>' + field.h + '</td><td>' + field.c + '</td></tr>';
+                                }
+                                tbody.html(buf);
+                            } else {
+                                var buf = '';
+                                for (var name in data.errors) {
+                                    buf += '<div class="alert alert-danger">' + data.errors[name][0] + '</div>';
+                                }
+                                err.html(buf);
+                                err.show();
+                            }
+                        },
+                        error: function (jqXHR) {
+                            //
+                        }
+                    });
+                } else {
+                    //
+                }
+            };
+
+            // запрещаю пользлвателю сабмитить по Enter
+            $('#id_article').keypress(function (e) {
+                if (e.which == '13') {
+                    e.preventDefault();
+                    $('#id_article').blur();
+                }
+            });
+            $('#id_article').on('change', reserve);
+        });
+    </script>
 {% endblock %}

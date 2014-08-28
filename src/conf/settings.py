@@ -1,4 +1,4 @@
-#coding:utf-8
+# coding:utf-8
 import os
 from ConfigParser import RawConfigParser
 
@@ -126,6 +126,19 @@ LOGIN_REDIRECT_URL = '/profile/'
 
 AUTH_USER_MODEL = 'users.User'
 
+# CACHE
+
+CACHES = {
+    "default": {
+        # "BACKEND": config.get(CONF, 'CACHES_BACKEND'),
+        "BACKEND": 'redis_cache.cache.RedisCache',
+        "LOCATION": "127.0.0.1:6379:1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+        }
+    }
+}
+
 # Logging
 
 LOGGING = {
@@ -144,7 +157,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.NullHandler',
         },
-        'console':{
+        'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'

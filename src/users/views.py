@@ -93,11 +93,9 @@ class CardCheckView(FormView):
                 'travel_passport', 'drive_license')))
         json_user[0]['fields']['photo_url'] = user.photo.url
 
-        res = Reserve.objects.filter(user=user).first()
-        reserve_url = res.get_absolute_url() if res else \
-            str(reverse_lazy('inventory:reserve_create',
-                             kwargs={'user': user.id}))
+        # TODO: add status to filter
+        res, _ = Reserve.objects.get_or_create(user=user)
 
         return JsonResponse({'status': 'success',
                              'user': json.dumps(json_user),
-                             'reserve': reserve_url})
+                             'reserve': str(res.get_absolute_url())})

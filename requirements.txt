@@ -2,8 +2,10 @@
 Pillow==2.5.2
 argparse==1.2.1
 -e git://github.com/sehmaschine/django-grappelli.git@af105fd5519b63de8a406ec15804e80b333622a3#egg=django_grappelli-origin/dev/2.6.x
+django-redis==3.7.1
 -e git://github.com/cephey/django-tastypie.git@7c666a35662ff111b35a5090b856b8fe21d1708f#egg=django_tastypie-master
 python-dateutil==2.2
 python-mimeparse==0.1.4
+redis==2.10.3
 six==1.7.3
 wsgiref==0.1.2
