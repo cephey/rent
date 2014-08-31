@@ -42,10 +42,10 @@
                     </thead>
                     <tbody></tbody>
                 </table>
-            </div>
-            <div class="alert alert-danger" style="display:none">
-                <strong>Ошибка!</strong>
-                Сервер временно недоступен.
+                <div class="alert alert-danger" style="display:none">
+                    <strong>Ошибка!</strong>
+                    Сервер временно недоступен.
+                </div>
             </div>
         </div>
 
@@ -63,7 +63,15 @@
                         <th>Количество</th>
                     </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody>
+                    {% for row in ea_table %}
+                        <tr>
+                            <td>{{ row.t }}</td>
+                            <td>{{ row.h }}</td>
+                            <td>{{ row.c }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
                 </table>
             </div>
 
@@ -81,17 +89,27 @@
 
             </form>
 
-            <div class="list-group">
-                <span class="list-group-item active">Добавлено</span>
-                <span class="list-group-item">Пусто</span>
-                {#                    <span class="list-group-item">#}
-                {#                        <button type="button" class="close" data-dismiss="alert">#}
-                {#                            <span aria-hidden="true">&times;</span>#}
-                {#                            <span class="sr-only">Close</span>#}
-                {#                        </button>#}
-                {#                        &nbsp;#}
-                {#                    </span>#}
+            <div class="alert alert-danger" style="display:none">
+                <strong>Ошибка!</strong>
+                Сервер временно недоступен.
             </div>
+
+            <div id="id_adding" class="list-group">
+                <span class="list-group-item active">Добавлено</span>
+                {% for item in adding %}
+                    <span class="list-group-item">
+                        <button type="button" class="close eq_delete" data-delete-url="{{ item.url }}">
+                            <span>&times;</span>
+                        </button>
+                        <strong>{{ item.t }}</strong> &nbsp; <span class="badge" style="float:none;">{{ item.a }}</span> &nbsp; {{ item.h }}
+                    </span>
+                {% endfor %}
+                <span class="list-group-item last" {% if adding %}style="display:none"{% endif %}>Пусто</span>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <a id="next_link" href="{% url 'inventory:confirm' reserve_id %}"
+               class="btn btn-primary pull-right {% if not adding %}disabled{% endif %}" role="button">На оплату</a>
         </div>
     </div>
 {% endblock %}
@@ -105,43 +123,89 @@
 
         $(function () {
 
-            var get_reserve_table = function () {
-                var container = $('#inventory_left');
+            var NextLink = (function () {
+                var block = $('#next_link');
+                var enable = function () {
+                    block.removeClass('disabled');
+                };
+                var disable = function () {
+                    block.addClass('disabled');
+                };
+                return {
+                    enable: enable,
+                    disable: disable
+                }
+            })();
+
+            var get_table = function (container) {
                 var tbody = container.find('tbody');
-                var err = container.next();
+                var err = container.find('.alert');
+                var url = container.attr('data-url');
+
+                var display = function (data) {
+                    err.hide();
+                    var buf = '';
+                    for (var i in data) {
+                        var field = data[i];
+                        buf += '<tr><td>' + field.t + '</td><td>' + field.h + '</td><td>' + field.c + '</td></tr>';
+                    }
+                    tbody.html(buf);
+                };
+                var show_errors = function () {
+                    tbody.html('');
+                    err.show();
+                };
+                return {
+                    url: url,
+                    display: display,
+                    show_errors: show_errors
+                }
+            };
+
+            // отображении тадлицы с инвентарем -------------------------------
+            var get_reserve_table = function () {
+                var Table = get_table($('#inventory_left'));
 
                 $.ajax({
-                    url: container.attr('data-url'),
+                    url: Table.url,
                     type: "GET",
                     success: function (data) {
-                        err.hide();
-                        var rows = data.ea_table;
-                        var buf = '';
-                        for (var i in rows) {
-                            var field = rows[i];
-                            buf += '<tr><td>' + field.t + '</td><td>' + field.h + '</td><td>' + field.c + '</td></tr>';
-                        }
-                        tbody.html(buf);
+                        Table.display(data.ea_table);
                     },
                     error: function (jqXHR) {
-                        tbody.html('');
-                        err.show();
+                        Table.show_errors();
                     }
                 });
             };
-
             get_reserve_table();
-
             // каждые 10 секунд запрашиваю что есть на складе
             setInterval(get_reserve_table, 1000000);
+            //-----------------------------------------------------------------
+
+            var get_error = function (container) {
+                container.hide();
+
+                var display = function (data) {
+                    var buf = '';
+                    for (var i in data) {
+                        buf += '<div class="alert alert-danger">' + data[i][0] + '</div>';
+                    }
+                    container.html(buf).show();
+                };
+                return {
+                    display: display
+                }
+            };
 
             var reserve = function (e) {
-                var val = $(this).val();
-                var form = $('#ReserveEquipmentForm');
-                var err = $('#err_block');
-                err.hide();
+                var self = $(this);
+                var form = self.closest('form');
+                var Table = get_table($('#inventory_reserve'));
+                var Error = get_error($('#err_block'));
 
-                if (val.length > 2) {
+                var article_length = 2;
+
+                if (self.val().length > article_length) {
 
                     $.ajax({
                         url: form.attr('action'),
@@ -151,38 +215,39 @@
                             xhr.setRequestHeader("X-CSRFToken", Cookie.getCookie('csrftoken'));
                         },
                         success: function (data) {
-                            console.log(data);
                             if (data.status === 'success') {
+                                Table.display(data.ea_table);
 
-                                var container = $('#inventory_reserve');
-                                var tbody = container.find('tbody');
-
-                                var rows = data.ea_table;
+                                $('#id_adding').find('.list-group-item').not('.active, .last').remove();
+                                var last = $('#id_adding').find('.list-group-item.last');
                                 var buf = '';
-                                for (var i in rows) {
-                                    var field = rows[i];
-                                    buf += '<tr><td>' + field.t + '</td><td>' + field.h + '</td><td>' + field.c + '</td></tr>';
+                                for (var i in data.adding) {
+                                    var field = data.adding[i];
+                                    buf += '<span class="list-group-item"><button type="button" class="close eq_delete" data-delete-url="' +
+                                            field.url + '"><span>&times;</span></button><strong>' +
+                                            field.t + '</strong> &nbsp; <span class="badge" style="float:none;">' +
+                                            field.a + '</span> &nbsp; ' + field.h + '</span>';
                                 }
-                                tbody.html(buf);
+                                $(buf).insertBefore(last);
+                                last.hide();
+                                NextLink.enable();
                             } else {
-                                var buf = '';
-                                for (var name in data.errors) {
-                                    buf += '<div class="alert alert-danger">' + data.errors[name][0] + '</div>';
-                                }
-                                err.html(buf);
-                                err.show();
+                                Error.display(data.errors);
                             }
                         },
                         error: function (jqXHR) {
-                            //
+                            Error.display({_: ['Сервер временно не доступен.']});
+                        },
+                        complete: function () {
+                            self.val('');
                         }
                     });
                 } else {
-                    //
+                    Error.display({_: ['Артикул должен содержать более ' + article_length + ' символов.']});
                 }
             };
 
-            // запрещаю пользлвателю сабмитить по Enter
+            // запрещаю пользователю сабмитить по Enter
             $('#id_article').keypress(function (e) {
                 if (e.which == '13') {
                     e.preventDefault();
@@ -190,6 +255,41 @@
                 }
             });
             $('#id_article').on('change', reserve);
+
+            $('body').on('click', '.eq_delete', function (e) {
+
+                var self = $(this);
+                var container = self.closest('.list-group');
+                var last = container.find('.list-group-item.last');
+                var err = container.prev();
+                err.hide();
+
+                $.ajax({
+                    url: self.attr('data-delete-url'),
+                    type: "POST",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", Cookie.getCookie('csrftoken'));
+                    },
+                    success: function (data) {
+                        if (data.status === 'success') {
+                            var items = container.find('.list-group-item').not('.active, .last');
+                            if (items.length < 2) {
+                                last.show();
+                                NextLink.disable();
+                            } else {
+                                last.hide();
+                                NextLink.enable();
+                            }
+                            self.closest('.list-group-item').remove();
+                        } else {
+                            err.show();
+                        }
+                    },
+                    error: function (jqXHR) {
+                        err.show();
+                    }
+                });
+            });
         });
     </script>
 {% endblock %}

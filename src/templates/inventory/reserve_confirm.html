@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Подтверджение{% endblock %}
+
+{% block menu_reserve %}active{% endblock %}
+
+{% block container %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Подтверджение
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-tree"></i> <a href="{% url 'inventory:all' %}">Инвентарь</a>
+                </li>
+                <li class="active">
+                    <i class="fa fa-cogs"></i> Подтверджение
+                </li>
+            </ol>
+        </div>
+    </div>
+    <!-- /.row -->
+
+    <div class="row">
+
+        <!-- Таблица что есть в наличии -->
+        <div class="col-lg-6">
+
+            <h4>{{ object.user.last_name }} {{ object.user.first_name }} {{ object.user.patronymic }}</h4>
+
+            <div id="inventory_reserve" class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Свойства</th>
+                        <th>Количество</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in ea_table %}
+                        <tr>
+                            <td>{{ row.t }}</td>
+                            <td>{{ row.h }}</td>
+                            <td>{{ row.c }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            {% if object.user.photo %}
+                <img class="img-thumbnail" src="{{ object.user.photo.url }}" width="300" height="300">
+            {% endif %}
+        </div>
+        <div class="col-lg-12">
+            <a id="prev_link" href="{% url 'inventory:reserve' object.id %}" class="btn btn-primary pull-left"
+               role="button">Назад</a>
+            <a id="next_link" href="{% url 'inventory:success' object.id %}" class="btn btn-primary pull-right"
+               role="button">Подтвердить</a>
+        </div>
+    </div>
+{% endblock %}

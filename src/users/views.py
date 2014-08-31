@@ -91,10 +91,11 @@ class CardCheckView(FormView):
             serializers.serialize("json", [user], fields=(
                 'first_name', 'last_name', 'patronymic', 'passport',
                 'travel_passport', 'drive_license')))
-        json_user[0]['fields']['photo_url'] = user.photo.url
+        if user.photo:
+            json_user[0]['fields']['photo_url'] = user.photo.url
 
         # TODO: add status to filter
-        res, _ = Reserve.objects.get_or_create(user=user)
+        res, _ = Reserve.objects.get_or_create(user=user, status=Reserve.NEW)
 
         return JsonResponse({'status': 'success',
                              'user': json.dumps(json_user),

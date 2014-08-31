@@ -1,12 +1,20 @@
 #coding:utf-8
+from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.dispatch import receiver
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Permission
 
 from .managers import UserManager, SmsManager
+
+from tastypie.models import ApiKey
+import uuid
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -39,7 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = getattr(settings, 'USERNAME_FIELD', 'email')
     REQUIRED_FIELDS = []
 
     class Meta:
@@ -58,6 +66,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+@receiver(post_save, sender=User)
+def add_user_permission(sender, instance, **kwargs):
+    ct1 = ContentType.objects.get(app_label="inventory", model="reserve")
+    perm1 = Permission.objects.get(content_type=ct1, codename='add_reserve')
+    ct2 = ContentType.objects.get(app_label="inventory", model="reserveea")
+    perm2 = Permission.objects.get(content_type=ct2, codename='add_reserveea')
+    instance.user_permissions.add(perm1, perm2)
+
+
+@receiver(post_save, sender=User)
+def create_user_api_key(sender, instance, **kwargs):
+    if not ApiKey.objects.filter(user=instance).exists():
+        key = ''.join(str(uuid.uuid4()).split('-'))
+        ApiKey.objects.create(user=instance, key=key)
 
 
 class Partner(models.Model):

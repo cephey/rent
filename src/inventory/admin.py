@@ -2,8 +2,11 @@
 from django.contrib import admin
 
 from .models import EquipmentType, Equipment, PropertyType, Property, EA, Reserve
+from .mixins import PropertyMixin
+from .helpers import get_cache_props, get_cache_type
 
 import hashlib
+from collections import Counter
 
 
 @admin.register(EquipmentType)
@@ -17,13 +20,9 @@ class PropertyInline(admin.TabularInline):
 
 
 @admin.register(Equipment)
-class EquipmentAdmin(admin.ModelAdmin):
+class EquipmentAdmin(PropertyMixin, admin.ModelAdmin):
     list_display = ('type', 'article', 'count', '_property')
     inlines = [PropertyInline]
-
-    def _property(self, obj):
-        return ','.join([u'{}: {}'.format(name, val) for name, val in obj.get_props()])
-    _property.short_description = u'Основные свойства'
 
     def response_add(self, request, new_object, post_url_continue=None):
         obj = self.after_saving_model_and_related_inlines(new_object)
@@ -74,14 +73,29 @@ class PropertyAdmin(admin.ModelAdmin):
 
 
 @admin.register(EA)
-class EAAdmin(admin.ModelAdmin):
+class EAAdmin(PropertyMixin, admin.ModelAdmin):
     list_display = ('type', 'count_in', 'count_out', '_property')
-
-    def _property(self, obj):
-        return ','.join([u'{}: {}'.format(name, val) for name, val in obj.get_props()])
-    _property.short_description = u'Основные свойства'
 
 
 @admin.register(Reserve)
 class ReserveAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('user', 'status', '_inventory', '_reserve')
+
+    def _inventory(self, obj):
+        """
+        return: (4)Ботинки => Размер: 40 , (1)Сноуборд => Длина: 160, ...
+        """
+        eqs = [u'{} => {}'.format(get_cache_type(item.hash), get_cache_props(item.hash))
+               for item in obj.equipments.all()]
+        return u' , '.join([u'({}){}'.format(v, k)
+                            for k, v in Counter(eqs).items()])
+    _inventory.short_description = u'Инвентарь на руках'
+
+    def _reserve(self, obj):
+        """
+        return: (4)Ботинки => Размер: 40 , (1)Сноуборд => Длина: 160, ...
+        """
+        eqs = [u'({}){} => {}'.format(item.count, get_cache_type(item.ea.hash), get_cache_props(item.ea.hash))
+               for item in obj.reserveea_set.select_related('ea__hash').order_by('-count')]
+        return u' , '.join(eqs)
+    _reserve.short_description = u'Забронировано'

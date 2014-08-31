@@ -1,12 +1,15 @@
+#coding:utf-8
 from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.conf import settings
 
-urlpatterns = patterns('',
-    # Examples:
+urlpatterns = patterns(
+    '',
     # url(r'^$', 'conf.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
+
+    url(r'^api/', include('api.urls')),
 
     url(r'', include('pages.urls', namespace='pages')),
 

@@ -1,13 +1,15 @@
 #coding:utf-8
-from django.db import models
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_save
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse
+from django.dispatch import receiver
+from django.db import transaction
+from django.db import models
 
 from .managers import EAManager
-from helpers import get_cache_props
+from helpers import get_cache_props, get_cache_type
 
-import hashlib
+from collections import Counter
 
 
 class EquipmentType(models.Model):
@@ -35,11 +37,9 @@ class Equipment(models.Model):
         verbose_name = _('equipment')
         verbose_name_plural = _('equipments')
 
-    def get_props(self):
-        return self.property_set.filter(general=True)\
-            .values_list('type__name', 'value')
 
-
+@receiver(post_delete, sender=Equipment)
+@transaction.atomic
 def ea_normalize(sender, instance, **kwargs):
     try:
         ea = EA.objects.get(hash=instance.hash)
@@ -59,8 +59,6 @@ def ea_normalize(sender, instance, **kwargs):
             ea.delete()
     except EA.DoesNotExist:
         pass
-
-post_delete.connect(ea_normalize, sender=Equipment)
 
 
 class PropertyType(models.Model):
@@ -103,10 +101,6 @@ class EA(models.Model):
         verbose_name = _('unit')
         verbose_name_plural = _('units')
 
-    def get_props(self):
-        return Property.objects.filter(equipment__hash=self.hash)\
-            .values_list('type__name', 'value').distinct()
-
 
 class Reserve(models.Model):
 
@@ -114,38 +108,103 @@ class Reserve(models.Model):
     RESERVE = 'RES'
     PAID = 'PAID'
     STATUSES = (
-        (NEW, 'Freshman'),
-        (RESERVE, 'Sophomore'),
-        (PAID, 'Junior'),
+        (NEW, u'Новый'),
+        (RESERVE, u'Готов к оплате'),
+        (PAID, u'Оплачено'),
     )
 
     user = models.ForeignKey('users.User', verbose_name=u'Клиент')
     equipments = models.ManyToManyField('inventory.Equipment',
                                         through='inventory.ReserveEquipment')
+    eas = models.ManyToManyField('inventory.EA',
+                                 through='inventory.ReserveEA')
     status = models.CharField(max_length=4, choices=STATUSES, default=NEW)
+
+    def __unicode__(self):
+        return u'Reserve: User={}, status={}'.format(self.user, dict(self.STATUSES).get(self.status))
 
     class Meta:
         verbose_name = _('reserve')
         verbose_name_plural = _('reserve')
 
     def get_absolute_url(self):
-        return reverse_lazy('inventory:reserve', kwargs={'pk': self.pk})
+        return reverse('inventory:reserve', kwargs={'pk': self.pk})
 
     def items(self):
-        inventory = self.reserveequipment_set.all()
-        reserve_dict = {}
-        for item in inventory:
-            key = item.equipment.hash
-            if key in reserve_dict:
-                reserve_dict[key][1] += 1
-            else:
-                reserve_dict[key] = [item.equipment.type.name, 1]
+        # TODO: оптимизировать sql
+        inventory = self.reserveea_set.all()
+        return [{'t': get_cache_type(item.ea.hash),
+                 'h': get_cache_props(item.ea.hash),
+                 'c': item.count} for item in inventory]
 
-        return [{'t': v[0], 'c': v[1], 'h': get_cache_props(h)}
-                for h, v in reserve_dict.items()]
+    def current_equipments(self):
+        # TODO: оптимизировать sql
+        inventory = Counter([item.equipment.hash
+                       for item in self.reserveequipment_set.all()])
+        return [{'t': get_cache_type(eq_hash),
+                 'h': get_cache_props(eq_hash),
+                 'c': count} for eq_hash, count in inventory.items()]
+
+    def adding_equipment(self):
+        # TODO: оптимизировать sql
+        inventory = self.reserveequipment_set.all()
+        return [{'t': get_cache_type(item.equipment.hash),
+                 'h': get_cache_props(item.equipment.hash),
+                 'url': reverse('inventory:reserve_equipment_delete', kwargs={'pk': item.id}),
+                 'a': item.equipment.article} for item in inventory]
+
+    @transaction.atomic
+    def confirm(self):
+        # создать словарь заброненых товаров
+        r_ea = {item.ea.hash: item.count
+                for item in self.reserveea_set.select_related('ea')}
+        r_ea = Counter(**r_ea)
+
+        # создать словарь товаров пробитых менеджером
+        r_eq = [item.equipment.hash
+                for item in self.reserveequipment_set.select_related('equipment')]
+        r_eq = Counter(r_eq)
+
+        # вычесть из первого второй
+        result = r_ea - r_eq
+
+        # удаляю/обновляю связки ReserveEA у reserve
+        for ea_hash, count in result.items():
+            r_ea = ReserveEA.objects.get(reserve=self, ea__hash=ea_hash)
+            diff = r_ea.count - count
+            if diff:
+                r_ea.count = diff
+                r_ea.save()
+            else:
+                r_ea.delete()
+
+        self.status = self.RESERVE
+        self.save()
 
 
 class ReserveEquipment(models.Model):
-
+    """
+    Для хранения забронированного инвенторя который пробивает менеджер
+    """
     reserve = models.ForeignKey('inventory.Reserve')
     equipment = models.ForeignKey('inventory.Equipment')
+
+
+class ReserveEA(models.Model):
+    """
+    Для хранения забронированного инвентаря с api
+    """
+    reserve = models.ForeignKey('inventory.Reserve')
+    ea = models.ForeignKey('inventory.EA')
+    count = models.PositiveIntegerField()
+
+
+@receiver(post_save, sender=ReserveEA)
+@receiver(post_delete, sender=ReserveEA)
+@transaction.atomic
+def update_ea_count(sender, instance, **kwargs):
+    ea = instance.ea
+    eq_sum = sum(Equipment.objects.filter(hash=ea.hash).values_list('count', flat=True))
+    ea.count_out = sum([item.count for item in instance.ea.reserveea_set.all()])
+    ea.count_in = eq_sum - ea.count_out
+    ea.save()

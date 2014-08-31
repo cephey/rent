@@ -1,11 +1,16 @@
--e git://github.com/django/django.git@b4c80238a2b6c3f9fb7437d216082315c601055b#egg=Django-dev
+-e git://github.com/django/django.git@ad96254af98f961d6691481c27127613afeee840#egg=Django-dev
 Pillow==2.5.2
 argparse==1.2.1
--e git://github.com/sehmaschine/django-grappelli.git@af105fd5519b63de8a406ec15804e80b333622a3#egg=django_grappelli-origin/dev/2.6.x
+certifi==14.05.14
+django-debug-toolbar==1.2.1
+django-devserver==0.8.0
+-e git://github.com/sehmaschine/django-grappelli.git@af105fd5519b63de8a406ec15804e80b333622a3#egg=django_grappelli
 django-redis==3.7.1
--e git://github.com/cephey/django-tastypie.git@7c666a35662ff111b35a5090b856b8fe21d1708f#egg=django_tastypie-master
+-e git://github.com/cephey/django-tastypie.git@802e834e666bdb7067065b346be9e840160dc116#egg=django_tastypie-master
 python-dateutil==2.2
 python-mimeparse==0.1.4
 redis==2.10.3
+requests==2.4.0
 six==1.7.3
+sqlparse==0.1.11
 wsgiref==0.1.2

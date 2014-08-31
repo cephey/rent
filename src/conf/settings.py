@@ -49,6 +49,9 @@ INSTALLED_APPS = (
     'users',
     'inventory',
     'pages',
+
+    'devserver',
+    # 'debug_toolbar.apps.DebugToolbarConfig',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -59,6 +62,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'devserver.middleware.DevServerMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -125,6 +131,7 @@ LOGIN_REDIRECT_URL = '/profile/'
 # Custom user model
 
 AUTH_USER_MODEL = 'users.User'
+USERNAME_FIELD = 'email'
 
 # CACHE
 
@@ -177,6 +184,30 @@ LOGGING = {
         'sms': {
             'handlers': ['console'],
             'level': 'INFO'
+        },
+        'ea': {
+            'handlers': ['console'],
+            'level': 'INFO'
         }
     }
 }
+
+DEVSERVER_MODULES = (
+    # 'tools.devservermodule.SQLPtitsynModule',
+)
+DEVSERVER_TRUNCATE_SQL = False
+
+DEBUG_TOOLBAR_PANELS = [
+    # 'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    # 'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    # 'debug_toolbar.panels.redirects.RedirectsPanel',
+]
