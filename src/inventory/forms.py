@@ -1,29 +1,11 @@
 #coding:utf-8
 from django import forms
-from .models import Reserve, EA, ReserveEquipment, Equipment
-
-
-class ReserveForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(ReserveForm, self).__init__(*args, **kwargs)
-        self.fields.get('user').widget = forms.HiddenInput()
-
-    class Meta:
-        model = Reserve
-
-
-class EAForm(forms.ModelForm):
-
-    class Meta:
-        model = EA
+from .models import ReserveEquipment, Equipment
 
 
 class ReserveEquipmentForm(forms.ModelForm):
 
-    article = forms.CharField(max_length=16,
-                              widget=forms.TextInput(
-                                  attrs={'class': 'form-control'}))
+    article = forms.CharField(max_length=16)
 
     def __init__(self, *args, **kwargs):
         super(ReserveEquipmentForm, self).__init__(*args, **kwargs)

@@ -1,0 +1,182 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-09-01 22:59+0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: inventory/models.py:21
+msgid "equipment type"
+msgstr "Тип инвентаря"
+
+#: inventory/models.py:22
+msgid "equipment types"
+msgstr "Тип инвентаря"
+
+#: inventory/models.py:37
+msgid "equipment"
+msgstr "Инвентарь"
+
+#: inventory/models.py:38
+msgid "equipments"
+msgstr "Инвентарь"
+
+#: inventory/models.py:73
+msgid "property type"
+msgstr "Тип свойства"
+
+#: inventory/models.py:74
+msgid "type of properties"
+msgstr "Типы свойств"
+
+#: inventory/models.py:86
+msgid "property"
+msgstr "Свойство"
+
+#: inventory/models.py:87
+msgid "properties"
+msgstr "Свойства"
+
+#: inventory/models.py:101
+msgid "unit"
+msgstr "еденица"
+
+#: inventory/models.py:102
+msgid "units"
+msgstr "еденицы"
+
+#: inventory/models.py:127 inventory/models.py:128
+msgid "reserve"
+msgstr "Бронирование"
+
+#: inventory/views.py:32
+msgid "This inventory is not available"
+msgstr "Это снаряжение недоступно"
+
+#: users/admin.py:15
+msgid "Personal info"
+msgstr "Персональные данные"
+
+#: users/admin.py:17
+msgid "Permissions"
+msgstr "Права"
+
+#: users/admin.py:19
+msgid "Important dates"
+msgstr "Важные даты"
+
+#: users/admin.py:20
+msgid "Documents"
+msgstr "Документы"
+
+#: users/admin.py:22
+msgid "Private"
+msgstr "Личные данные"
+
+#: users/models.py:22
+msgid "email address"
+msgstr "Адресс Email"
+
+#: users/models.py:24
+msgid "first name"
+msgstr "Имя"
+
+#: users/models.py:25
+msgid "last name"
+msgstr "Фамилия"
+
+#: users/models.py:26
+msgid "patronymic"
+msgstr "Отчество"
+
+#: users/models.py:28
+msgid "staff status"
+msgstr "Статус персонала"
+
+#: users/models.py:29
+msgid "Designates whether the user can log into this admin site."
+msgstr "Определяет, может ли пльзователь войти в административную часть."
+
+#: users/models.py:31
+msgid "active"
+msgstr "Активный"
+
+#: users/models.py:32
+msgid ""
+"Designates whether this user should be treated as active. Unselect this "
+"instead of deleting accounts."
+msgstr "Определяет, активный ли пользователь."
+
+#: users/models.py:34
+msgid "date joined"
+msgstr "Дата регистрации"
+
+#: users/models.py:36
+msgid "Number of passport"
+msgstr "Номер паспорта"
+
+#: users/models.py:38
+msgid "Travel passport number"
+msgstr "Номер загран. паспорта"
+
+#: users/models.py:40
+msgid "Driver's license number"
+msgstr "Номер водительского удостоверения"
+
+#: users/models.py:44
+msgid "Phone number"
+msgstr "Номер телефона"
+
+#: users/models.py:54
+msgid "user"
+msgstr "Пользователь"
+
+#: users/models.py:55
+msgid "users"
+msgstr "Пользователи"
+
+#: users/models.py:89
+msgid "Name"
+msgstr "Имя"
+
+#: users/models.py:92
+msgid "partner"
+msgstr "Партнер"
+
+#: users/models.py:93
+msgid "partners"
+msgstr "Партнеры"
+
+#: users/models.py:102
+msgid "Code"
+msgstr "Код"
+
+#: users/models.py:103
+msgid "Create date"
+msgstr "Создать дату"
+
+#: users/models.py:108 users/models.py:109
+msgid "sms"
+msgstr ""
+
+#: users/models.py:123
+msgid "cards"
+msgstr "Карты"
+
+#: users/models.py:124
+msgid "card"
+msgstr "Карта"

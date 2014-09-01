@@ -1,12 +1,15 @@
 #coding:utf-8
-from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView, CreateView
 from django.utils.decorators import method_decorator
+from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.core import serializers
 
-from .forms import CreateClientForm, SmsConfirmForm, CardCreateForm, CardCheckForm
+from .forms import (CreateClientForm,
+                    SmsConfirmForm,
+                    CardCreateForm,
+                    CardCheckForm)
 from .models import User, Sms
 from inventory.models import Reserve
 from tools.decorators import ajax_required
@@ -32,7 +35,8 @@ class CreateClientView(CreateView):
         return super(CreateClientView, self).form_valid(form)
 
     def get_success_url(self):
-        self.success_url = reverse_lazy(self.next_view, kwargs={'user': self.object.id})
+        self.success_url = reverse_lazy(self.next_view,
+                                        kwargs={'user': self.object.id})
         return super(CreateClientView, self).get_success_url()
 
 
@@ -54,7 +58,8 @@ class SmsConfirmView(FormView):
         return super(SmsConfirmView, self).form_valid(form)
 
     def get_success_url(self):
-        self.success_url = reverse_lazy('users:add_card', kwargs={'user': self.user_id})
+        self.success_url = reverse_lazy('users:add_card',
+                                        kwargs={'user': self.user_id})
         return super(SmsConfirmView, self).get_success_url()
 
 
@@ -72,7 +77,8 @@ class UserAddCardView(CreateView):
         return self.initial.copy()
 
     def get_success_url(self):
-        self.success_url = reverse_lazy('users:create_success', kwargs={'user': self.user_id})
+        self.success_url = reverse_lazy('users:create_success',
+                                        kwargs={'user': self.user_id})
         return super(UserAddCardView, self).get_success_url()
 
 

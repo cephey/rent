@@ -115,9 +115,10 @@ class Sms(models.Model):
 
 class Card(models.Model):
 
-    article = models.CharField(u'Номер карты', max_length=16,
-                               help_text=u'Сканируйте штрих код карты для привязки ее к клиенту')
     user = models.ForeignKey('users.User')
+    article = models.CharField(u'Номер карты', max_length=16,
+                               help_text=u'Сканируйте штрих код карты для '
+                                         u'привязки ее к клиенту')
 
     class Meta:
         verbose_name = _('cards')

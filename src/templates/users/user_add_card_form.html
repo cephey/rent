@@ -39,7 +39,7 @@
                         </div>
                     {% endif %}
                     {{ form.article.label_tag }}
-                    {{ form.article }}
+                    {{ form.article|add_attributes:"form-control" }}
                     <p class="help-block">{{ form.article.help_text }}</p>
                 </div>
             </div>

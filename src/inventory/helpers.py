@@ -3,8 +3,8 @@ from django.db.models.loading import get_model
 from django.core.cache import cache
 from django.db import transaction
 
-import random
 from collections import Counter
+from random import randint
 
 
 def get_cache_props(hash, format=True):
@@ -15,7 +15,7 @@ def get_cache_props(hash, format=True):
                     .values_list('type__name', 'value')
                     .distinct())
 
-        cache.set(hash, prop, timeout=random.randint(25 * 60, 35 * 60))
+        cache.set(hash, prop, timeout=randint(25 * 60, 35 * 60))
 
     if format:
         return ','.join([u'{}: {}'.format(name, val) for name, val in prop])
@@ -30,7 +30,7 @@ def get_cache_type(hash):
             .objects.filter(hash=hash).first()
         type_name = eq.type.name
 
-        cache.set(hash_name, type_name, timeout=random.randint(25 * 60, 35 * 60))
+        cache.set(hash_name, type_name, timeout=randint(25 * 60, 35 * 60))
     return type_name
 
 

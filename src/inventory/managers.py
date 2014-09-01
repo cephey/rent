@@ -2,20 +2,11 @@
 from django.db.models.loading import get_model
 from django.db import models
 
+from .helpers import get_cache_props
+
 
 class EAManager(models.Manager):
-    pass
 
-    # def update_counts(self, article, count=0):
-    #     eq = get_model('inventory', 'Equipment').objects.get(article=article)
-    #     ea = self.get(hash=eq.hash)
-    #
-    #     diff = ea.count_in - count
-    #     if diff < 0:
-    #         return False
-    #
-    #     ea.count_in -= count
-    #     ea.count_out += count
-    #     ea.save()
-    #
-    #     return True
+    def free_inventory(self):
+        return [{'t': t, 'c': c, 'h': get_cache_props(h)}
+                for t, c, h in self.values_list('type__name', 'count_in', 'hash')]

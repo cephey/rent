@@ -33,7 +33,7 @@
                 <div class="form-group">
                     {{ form.code.errors }}
                     {{ form.code.label_tag }}
-                    {{ form.code }}
+                    {{ form.code|add_attributes:"form-control,type:text" }}
                     <p class="help-block">{{ form.code.help_text }}</p>
                 </div>
             </div>

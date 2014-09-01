@@ -150,7 +150,8 @@ class Reserve(models.Model):
         inventory = self.reserveequipment_set.all()
         return [{'t': get_cache_type(item.equipment.hash),
                  'h': get_cache_props(item.equipment.hash),
-                 'url': reverse('inventory:reserve_equipment_delete', kwargs={'pk': item.id}),
+                 'url': reverse('inventory:reserve_equipment_delete',
+                                kwargs={'pk': item.id}),
                  'a': item.equipment.article} for item in inventory]
 
     @transaction.atomic

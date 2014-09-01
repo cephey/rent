@@ -29,7 +29,8 @@ class UserChangeForm(BaseUserChangeForm):
 
 class CreateClientForm(forms.ModelForm):
 
-    sms = forms.BooleanField(label=u'sms', help_text=u'Без проверки по SMS', required=False)
+    sms = forms.BooleanField(label=u'sms', help_text=u'Без проверки по SMS',
+                             required=False)
 
     def __init__(self, *args, **kwargs):
         super(CreateClientForm, self).__init__(*args, **kwargs)
@@ -40,8 +41,7 @@ class CreateClientForm(forms.ModelForm):
                     field.widget = forms.TextInput(attrs={
                         'placeholder': field.label,
                         'class': 'form-control'})
-        email_field = self.fields.get('email')
-        email_field.widget = forms.HiddenInput()
+        self.fields.get('email').widget = forms.HiddenInput()
 
     class Meta:
         model = User
@@ -53,22 +53,15 @@ class CreateClientForm(forms.ModelForm):
 class SmsConfirmForm(forms.Form):
 
     code = forms.IntegerField(label=u'Код подтверждения',
-                              help_text=u'Введите код, посланный на указанный номер по SMS',
-                              widget=forms.TextInput(attrs={
-                                  'class': 'form-control'
-                              }))
+                              help_text=u'Введите код, посланный на указанный '
+                                        u'номер по SMS')
 
 
 class CardCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CardCreateForm, self).__init__(*args, **kwargs)
-        user_field = self.fields.get('user')
-        user_field.widget = forms.HiddenInput()
-
-        article_field = self.fields.get('article')
-        article_field.widget = forms.TextInput(attrs={
-            'class': 'form-control'})
+        self.fields.get('user').widget = forms.HiddenInput()
 
     class Meta:
         model = Card

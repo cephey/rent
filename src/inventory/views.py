@@ -1,21 +1,21 @@
 #coding:utf-8
-from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, RedirectView
+from django.utils.translation import ugettext_lazy as _
+from django.views.generic import (CreateView,
+                                  DeleteView,
+                                  DetailView,
+                                  RedirectView)
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from django.db import transaction
 
-from .forms import ReserveForm, ReserveEquipmentForm
+from .models import EA, Reserve, Equipment, ReserveEquipment
+from .forms import ReserveEquipmentForm
+from .helpers import add_inventory
 from tools.views import JSONView
-from .models import EA, Reserve, Equipment, ReserveEquipment, ReserveEA
-from .helpers import get_cache_props, add_inventory
-
-NOT_AVAILABLE = u'Это снаряжение недоступно.'
 
 
 class ReserveEquipmentCreateView(CreateView):
     template_name = 'inventory/create_reserve_form.html'
     form_class = ReserveEquipmentForm
-    reserve = None
 
     def dispatch(self, request, *args, **kwargs):
         self.reserve = get_object_or_404(Reserve, id=kwargs.get('pk'))
@@ -30,22 +30,24 @@ class ReserveEquipmentCreateView(CreateView):
         success = add_inventory(self.reserve, article)
 
         if not success:
-            return JsonResponse({'errors': {'__all__': [NOT_AVAILABLE]}})
+            return JsonResponse({'errors': {
+                '__all__': [_('This inventory is not available')]}})
 
         self.object = form.save(commit=False)
         self.object.equipment = Equipment.objects.get(article=article)
         self.object.save()
 
-        return JsonResponse(dict(status='success', **self.response()))
+        return JsonResponse(dict(status='success', **self.response))
 
     def form_invalid(self, form):
         return JsonResponse({'errors': form.errors})
 
     def get_context_data(self, **kwargs):
         context = super(ReserveEquipmentCreateView, self).get_context_data(**kwargs)
-        context.update(dict(reserve_id=self.reserve.id, **self.response()))
+        context.update(dict(reserve_id=self.reserve.id, **self.response))
         return context
 
+    @property
     def response(self):
         return {'ea_table': self.reserve.items(),
                 'adding': self.reserve.adding_equipment()}
@@ -56,10 +58,10 @@ class ReserveEquipmentDeleteView(DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.reserve = self.object.reserve
+        reserve = self.object.reserve
         self.object.delete()
         return JsonResponse({'status': 'success',
-                             'ea_table': self.reserve.items()})
+                             'ea_table': reserve.items()})
 
 
 class ReserveView(DetailView):
@@ -79,15 +81,12 @@ class ReserveSuccessView(RedirectView):
     def get(self, request, *args, **kwargs):
         reserve = get_object_or_404(Reserve, id=kwargs.get('pk'))
         reserve.confirm()
-
         return super(ReserveSuccessView, self).get(request, *args, **kwargs)
 
 
 class EAView(JSONView):
 
     def get_context_data(self, **kwargs):
-        eas = EA.objects.values_list('type__name', 'count_in', 'hash')
-
-        kwargs['ea_table'] = [{'t': t, 'c': c, 'h': get_cache_props(h)}
-                              for t, c, h in eas]
-        return kwargs
+        context = super(EAView, self).get_context_data(**kwargs)
+        context['ea_table'] = EA.objects.free_inventory()
+        return context

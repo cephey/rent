@@ -75,18 +75,16 @@
                 </table>
             </div>
 
-            <form id="ReserveEquipmentForm" role="form" action="" method="post">{% csrf_token %}
-
+            <form role="form" action="" method="post">{% csrf_token %}
                 <div id="err_block" style="display:none"></div>
 
                 <div class="form-group input-group">
                     <span class="input-group-addon">
                         <i class="fa fa-barcode"></i>
                     </span>
-                    {{ form.article }}
+                    {{ form.article|add_attributes:"form-control" }}
                     {{ form.reserve }}
                 </div>
-
             </form>
 
             <div class="alert alert-danger" style="display:none">
@@ -197,6 +195,7 @@
                 }
             };
 
+            // добавление инвентаря в бронь
             var reserve = function (e) {
                 var self = $(this);
                 var form = self.closest('form');
@@ -255,7 +254,9 @@
                 }
             });
             $('#id_article').on('change', reserve);
+            //-----------------------------------------------------------------
 
+            // удаление инвентаря
             $('body').on('click', '.eq_delete', function (e) {
 
                 var self = $(this);
@@ -290,6 +291,7 @@
                     }
                 });
             });
+            //-----------------------------------------------------------------
         });
     </script>
 {% endblock %}

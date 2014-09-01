@@ -2,11 +2,11 @@
 from django.contrib import admin
 
 from .models import EquipmentType, Equipment, PropertyType, Property, EA, Reserve
-from .mixins import PropertyMixin
 from .helpers import get_cache_props, get_cache_type
+from .mixins import PropertyMixin
 
-import hashlib
 from collections import Counter
+import hashlib
 
 
 @admin.register(EquipmentType)
@@ -85,7 +85,8 @@ class ReserveAdmin(admin.ModelAdmin):
         """
         return: (4)Ботинки => Размер: 40 , (1)Сноуборд => Длина: 160, ...
         """
-        eqs = [u'{} => {}'.format(get_cache_type(item.hash), get_cache_props(item.hash))
+        eqs = [u'{} => {}'.format(get_cache_type(item.hash),
+                                  get_cache_props(item.hash))
                for item in obj.equipments.all()]
         return u' , '.join([u'({}){}'.format(v, k)
                             for k, v in Counter(eqs).items()])
@@ -95,7 +96,10 @@ class ReserveAdmin(admin.ModelAdmin):
         """
         return: (4)Ботинки => Размер: 40 , (1)Сноуборд => Длина: 160, ...
         """
-        eqs = [u'({}){} => {}'.format(item.count, get_cache_type(item.ea.hash), get_cache_props(item.ea.hash))
-               for item in obj.reserveea_set.select_related('ea__hash').order_by('-count')]
-        return u' , '.join(eqs)
+        return u' , '.join([u'({}){} => {}'.format(item.count,
+                                                   get_cache_type(item.ea.hash),
+                                                   get_cache_props(item.ea.hash))
+                            for item in obj.reserveea_set
+                                            .select_related('ea__hash')
+                                            .order_by('-count')])
     _reserve.short_description = u'Забронировано'

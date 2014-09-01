@@ -1,9 +1,8 @@
 #coding:utf-8
-from tastypie.resources import ModelResource, Resource
+from tastypie.resources import ModelResource
 from inventory.models import EA, EquipmentType, Reserve, ReserveEA
 from inventory.helpers import get_cache_props
 from user_api import UserResource
-from api.paginators import DummyPaginator
 from .authentication import PtitsynApiKeyAuthentication
 
 from tastypie import http
@@ -31,8 +30,6 @@ class EAResource(ModelResource):
         fields = ['count_in', 'hash']
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
-        # Этот пагинатор позволит избавиться от одного COUNT(*) запроса
-        # paginator_class = DummyPaginator
 
     def dehydrate(self, bundle):
         bundle = super(EAResource, self).dehydrate(bundle)
@@ -61,7 +58,6 @@ class ReserveEAResource(ModelResource):
     class Meta:
         queryset = ReserveEA.objects.all()
         resource_name = 'reserve_item'
-        # fields = ['count_in', 'hash']
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get']
         authentication = PtitsynApiKeyAuthentication()
