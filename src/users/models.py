@@ -3,13 +3,14 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils import timezone
-from django.utils.http import urlquote
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
+from django.dispatch import receiver
 
 from .managers import UserManager, SmsManager
 
@@ -28,7 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(_('staff status'), default=False,
         help_text=_('Designates whether the user can log into this admin '
                     'site.'))
-    is_active = models.BooleanField(_('active'), default=False,
+    is_active = models.BooleanField(_('active'), default=True,
         help_text=_('Designates whether this user should be treated as '
                     'active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
@@ -42,6 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     photo = models.ImageField(blank=True, null=True)
     phone = models.CharField(_('Phone number'), max_length=32, blank=True)
+    confirm = models.BooleanField(_('Phone confirm'), default=False)
 
     partner = models.ForeignKey('users.Partner', blank=True, null=True)
 
@@ -55,7 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('users')
 
     def get_absolute_url(self):
-        return "/users/%s/" % urlquote(self.email)
+        return reverse('users:update', kwargs={'pk': self.id})
 
     def get_full_name(self):
         full_name = '{} {} {}'.format(self.first_name, self.last_name, self.patronymic)
@@ -66,6 +68,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+    def thumb(self):
+        if self.photo:
+            return mark_safe(u'<img src="{}" height=40 />'.format(self.photo.url))
+        return ''
+    thumb.short_description = _('Thumbnail')
 
 
 @receiver(post_save, sender=User)

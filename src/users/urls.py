@@ -3,6 +3,7 @@ from django.conf.urls import patterns, url
 from django.views.generic import TemplateView
 
 from .views import (CreateClientView,
+                    UpdateClientView,
                     UserAddCardView,
                     SmsConfirmView,
                     CardCheckView)
@@ -17,6 +18,8 @@ urlpatterns = patterns(
         name='sms_confirm'),
     url(r'^add_card/(?P<user>[0-9]+)/$', UserAddCardView.as_view(),
         name='add_card'),
+
+    url(r'^(?P<pk>[0-9]+)/$', UpdateClientView.as_view(), name='update'),
 
     url(r'^create/success/(?P<user>[0-9]+)/$',
         TemplateView.as_view(template_name='users/create_client_success.html'),

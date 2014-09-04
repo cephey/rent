@@ -1,10 +1,9 @@
 #coding:utf-8
-from django.views.generic import FormView, CreateView
+from django.views.generic import FormView, CreateView, UpdateView
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from django.core import serializers
 
 from .forms import (CreateClientForm,
                     SmsConfirmForm,
@@ -13,9 +12,9 @@ from .forms import (CreateClientForm,
 from .models import User, Sms
 from inventory.models import Reserve
 from tools.decorators import ajax_required
+from .helpers import json_user
 
 import uuid
-import json
 
 
 class CreateClientView(CreateView):
@@ -30,7 +29,7 @@ class CreateClientView(CreateView):
         return self.initial.copy()
 
     def form_valid(self, form):
-        if form.cleaned_data['sms']:
+        if not form.cleaned_data['phone'] or form.cleaned_data['sms']:
             self.next_view = 'users:add_card'
         return super(CreateClientView, self).form_valid(form)
 
@@ -38,6 +37,18 @@ class CreateClientView(CreateView):
         self.success_url = reverse_lazy(self.next_view,
                                         kwargs={'user': self.object.id})
         return super(CreateClientView, self).get_success_url()
+
+
+class UpdateClientView(UpdateView):
+    template_name = 'users/create_client_form.html'
+    form_class = CreateClientForm
+    model = User
+
+    def get_success_url(self):
+        if not self.object.card_set.all():
+            self.success_url = reverse_lazy('users:add_card',
+                                            kwargs={'user': self.object.id})
+        return super(UpdateClientView, self).get_success_url()
 
 
 class SmsConfirmView(FormView):
@@ -54,7 +65,7 @@ class SmsConfirmView(FormView):
         return super(SmsConfirmView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
-        User.objects.activate(self.user_id, form.cleaned_data['code'])
+        User.objects.confirm(self.user_id, form.cleaned_data['code'])
         return super(SmsConfirmView, self).form_valid(form)
 
     def get_success_url(self):
@@ -92,17 +103,8 @@ class CardCheckView(FormView):
 
     def form_valid(self, form):
         user = get_object_or_404(User, card__article=form.cleaned_data['card'])
-
-        json_user = json.loads(
-            serializers.serialize("json", [user], fields=(
-                'first_name', 'last_name', 'patronymic', 'passport',
-                'travel_passport', 'drive_license')))
-        if user.photo:
-            json_user[0]['fields']['photo_url'] = user.photo.url
-
-        # TODO: add status to filter
         res, _ = Reserve.objects.get_or_create(user=user, status=Reserve.NEW)
 
         return JsonResponse({'status': 'success',
-                             'user': json.dumps(json_user),
+                             'user': json_user(user),
                              'reserve': str(res.get_absolute_url())})

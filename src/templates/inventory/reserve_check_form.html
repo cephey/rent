@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load css_class %}
+
+{% block title %}Проверка номера брони{% endblock %}
+
+{% block menu_reserve_check %}active{% endblock %}
+
+{% block container %}
+    <!-- Page Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Проверка номера брони
+            </h1>
+            <ol class="breadcrumb">
+                <li class="active">
+                    <i class="fa fa-crosshairs"></i> Проверка номера брони
+                </li>
+            </ol>
+        </div>
+    </div>
+    <!-- /.row -->
+
+    <div class="row">
+        <div class="col-lg-6">
+            <!-- Карта -->
+            <form id="CheckCardForm" role="form" action="" method="post">{% csrf_token %}
+                <div class="alert alert-danger" style="display:none"></div>
+                <div class="form-group input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-barcode"></i>
+                    </span>
+                    {{ form.reserve|add_attributes:"form-control" }}
+                    <p class="help-block">{{ form.reserve.help_text }}</p>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-6">
+            <div class="well">
+                <p>Данные брони:</p>
+                <div id="wall-data"></div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <hr/>
+            <a id="next_link" href="#" class="btn btn-primary disabled" role="button">Далее</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.getElementById('id_reserve').focus();
+
+        $(function () {
+            var form_input = $('#id_reserve');
+            var data_block = $('#wall-data');
+            var next_button = $('#next_link');
+
+            var WallData = (function (block) {
+                var fio = {
+                    first_name: 'Имя',
+                    last_name: 'Фамилия',
+                    patronymic: 'Отчество'
+                };
+                var docs = {
+                    passport: 'Паспорт',
+                    travel_passport: 'Загран Паспорт',
+                    drive_license: 'Водительское Удостоверение'
+                };
+                var _get_paragraph = function (name, value) {
+                    return '<p><strong>' + name + '</strong>: ' + value + '</p>';
+                };
+                var show = function (user) {
+                    user = $.parseJSON(user)[0]['fields'];
+                    var buf = '';
+                    if (user.photo_url) {
+                        buf += '<img class="img-thumbnail" src="' + user.photo_url + '" alt="" width="300" height="300" />';
+                    }
+                    for (var i in fio) {
+                        buf += _get_paragraph(fio[i], user[i]);
+                    }
+                    for (var i in docs) {
+                        if (user[i]) {
+                            buf += _get_paragraph(docs[i], user[i]);
+                        }
+                    }
+                    if (user.profile_url) {
+                        buf += '<a href="' + user.profile_url + '" class="btn btn-success" role="button">Привязать карту</a>';
+                    }
+                    block.html(buf);
+                };
+                var hide = function () {
+                    block.html('');
+                };
+                return {
+                    show: show,
+                    hide: hide
+                }
+            })(data_block);
+
+            var ErrObj = (function (elem) {
+                var message;
+                var block = elem.closest('form').find('.alert');
+
+                var show = function (status) {
+                    if (typeof(status) === 'number') {
+                        switch (status) {
+                            case 404:
+                                message = 'Брони с таким номером не найдено';
+                                break;
+                            default:
+                                message = 'Сервер не смог выполнить запрос.';
+                        }
+                    } else {
+                        message = status;
+                    }
+                    block.html('<strong>Ошибка!</strong> ' + message).show();
+                };
+                var hide = function () {
+                    block.html('').hide();
+                };
+                return {
+                    show: show,
+                    hide: hide
+                }
+            })(form_input);
+
+            var NextLink = (function (block) {
+                var enable = function (url) {
+                    block.removeClass('disabled').attr('href', url);
+                };
+                var disable = function () {
+                    block.addClass('disabled').attr('href', '#');
+                };
+                return {
+                    enable: enable,
+                    disable: disable
+                }
+            })(next_button);
+
+            var check_card = function (e) {
+                var self = $(this);
+                var form = self.closest('form');
+                ErrObj.hide();
+                WallData.hide();
+                NextLink.disable();
+
+                if (self.val().length > 0) {
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: "POST",
+                        data: form.serialize(),
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", Cookie.getCookie('csrftoken'));
+                        },
+                        success: function (data) {
+                            if (data.status === 'success') {
+                                WallData.show(data.user);
+                                NextLink.enable(data.reserve);
+                            } else {
+                                // TODO: Show error message
+                                ErrObj.show(500);
+                            }
+                        },
+                        error: function (jqXHR) {
+                            ErrObj.show(jqXHR.status);
+                        }
+                    });
+                } else {
+                    ErrObj.show('Пустое поле');
+                }
+            };
+            // запрещаю пользователю сабмитить по Enter
+            form_input.keypress(function (e) {
+                if (e.which == '13') {
+                    e.preventDefault();
+                    e.target.blur();
+                }
+            });
+            form_input.on('change', check_card);
+        });
+    </script>
+{% endblock %}

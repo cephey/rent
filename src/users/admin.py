@@ -19,7 +19,7 @@ class UserAdmin(BaseUserAdmin):
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Documents'), {'fields': ('passport', 'travel_passport',
                                      'drive_license')}),
-        (_('Private'), {'fields': ('photo', 'phone', 'partner')}),
+        (_('Private'), {'fields': ('photo', 'phone', 'confirm', 'partner')}),
     )
     add_fieldsets = (
         (None, {
@@ -29,8 +29,8 @@ class UserAdmin(BaseUserAdmin):
     )
     form = UserChangeForm
     add_form = UserCreationForm
-    list_display = ('get_display', 'first_name', 'last_name', 'patronymic',
-                    'is_staff')
+    list_display = ('get_display','thumb', 'first_name', 'last_name',
+                    'patronymic', 'is_staff', 'is_active', 'confirm')
     search_fields = ('email', 'first_name', 'last_name', 'patronymic')
     ordering = ('email',)
 

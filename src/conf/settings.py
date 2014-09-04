@@ -50,7 +50,7 @@ INSTALLED_APPS = (
     'inventory',
     'pages',
 
-    'devserver',
+    # 'devserver',
     # 'debug_toolbar.apps.DebugToolbarConfig',
 )
 
@@ -62,6 +62,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'users.middleware.LoginRequiredMiddleware',
 
     'devserver.middleware.DevServerMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -126,10 +128,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # AUTHENTICATION
 
 LOGIN_URL = '/login/'
-
 LOGOUT_URL = '/logout/'
+LOGIN_REDIRECT_URL = '/'
 
-LOGIN_REDIRECT_URL = '/profile/'
+LOGIN_EXEMPT_URLS = (
+    r'^admin/',
+    r'^api/',
+)
 
 # Custom user model
 

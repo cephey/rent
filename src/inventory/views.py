@@ -1,16 +1,21 @@
 #coding:utf-8
 from django.utils.translation import ugettext_lazy as _
+from django.utils.decorators import method_decorator
 from django.views.generic import (CreateView,
                                   DeleteView,
                                   DetailView,
-                                  RedirectView)
+                                  RedirectView,
+                                  FormView)
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 
 from .models import EA, Reserve, Equipment, ReserveEquipment
-from .forms import ReserveEquipmentForm
+from .forms import ReserveEquipmentForm, ReserveCheckForm
 from .helpers import add_inventory
+from tools.decorators import ajax_required
 from tools.views import JSONView
+from users.models import User
+from users.helpers import json_user
 
 
 class ReserveEquipmentCreateView(CreateView):
@@ -90,3 +95,22 @@ class EAView(JSONView):
         context = super(EAView, self).get_context_data(**kwargs)
         context['ea_table'] = EA.objects.free_inventory()
         return context
+
+
+class ReserveCheckView(FormView):
+    template_name = 'inventory/reserve_check_form.html'
+    form_class = ReserveCheckForm
+
+    @method_decorator(ajax_required)
+    def post(self, request, *args, **kwargs):
+        return super(ReserveCheckView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        user = get_object_or_404(User,
+                                 reserve__id=form.cleaned_data['reserve'],
+                                 reserve__status=Reserve.NEW)
+        res = Reserve.objects.get(id=form.cleaned_data['reserve'])
+
+        return JsonResponse({'status': 'success',
+                             'user': json_user(user),
+                             'reserve': str(res.get_absolute_url())})

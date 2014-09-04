@@ -2,6 +2,8 @@
 from django.conf.urls import patterns, url
 from django.views.generic import TemplateView
 
+from .views import LoginView, LogoutView
+
 urlpatterns = patterns(
     '',
 
@@ -19,4 +21,7 @@ urlpatterns = patterns(
         name='grid'),
     url(r'^blank/$', TemplateView.as_view(template_name='pages/blank.html'),
         name='blank'),
+
+    url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^logout/$', LogoutView.as_view(), name='logout'),
 )

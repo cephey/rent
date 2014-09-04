@@ -35,11 +35,11 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, True, True,
                                  **extra_fields)
 
-    def activate(self, id, code):
+    def confirm(self, id, code):
         Sms = get_model('users', 'Sms')
         if Sms.objects.filter(user__id=id, code=code).exists():
             Sms.objects.filter(user__id=id, code=code).delete()
-            self.filter(id=id).update(is_active=True)
+            self.filter(id=id).update(confirm=True)
 
 
 class SmsManager(models.Manager):

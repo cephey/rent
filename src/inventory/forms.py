@@ -23,3 +23,10 @@ class ReserveEquipmentForm(forms.ModelForm):
             raise forms.ValidationError(
                 u"Снаряжения с артиклом {} не найдено".format(data))
         return data
+
+
+class ReserveCheckForm(forms.Form):
+
+    reserve = forms.CharField(label=u'Номер брони', max_length=16,
+                              widget=forms.TextInput(attrs={
+                                  'placeholder': u'Номер брони'}))

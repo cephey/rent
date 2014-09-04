@@ -11,7 +11,7 @@ class BaseResourceTestCase(ResourceTestCase):
     def setUp(self):
         super(BaseResourceTestCase, self).setUp()
         self.email = '293013fa8d4c4b48@mail.ru'
-        self.user = User.objects.create(email=self.email, is_active=True)
+        self.user = User.objects.create(email=self.email)
 
     def get_credentials(self):
         return self.create_apikey(self.email, self.user.api_key.key)

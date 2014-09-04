@@ -6,11 +6,13 @@ from .views import (ReserveView,
                     EAView,
                     ReserveEquipmentCreateView,
                     ReserveEquipmentDeleteView,
-                    ReserveSuccessView)
+                    ReserveSuccessView,
+                    ReserveCheckView)
 
 urlpatterns = patterns(
     '',
-    url(r'^$', TemplateView.as_view(template_name='inventory/all.html'), name='all'),
+    url(r'^$', TemplateView.as_view(template_name='inventory/all.html'),
+        name='all'),
 
     url(r'^reserve/(?P<pk>[0-9]+)/$', ReserveEquipmentCreateView.as_view(),
         name='reserve'),
@@ -26,4 +28,6 @@ urlpatterns = patterns(
 
     # Таблица что осталось
     url(r'^ea/$', EAView.as_view(), name='ea'),
+
+    url(r'^reserve_check/$', ReserveCheckView.as_view(), name='reserve_check'),
 )
