@@ -1,4 +1,4 @@
--e git://github.com/django/django.git@ad96254af98f961d6691481c27127613afeee840#egg=Django-dev
+Django==1.7
 Pillow==2.5.2
 argparse==1.2.1
 certifi==14.05.14

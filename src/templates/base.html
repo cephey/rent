@@ -34,93 +34,57 @@
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-envelope"></i> <b
-                        class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-envelope"></i> <b class="caret"></b>
+                </a>
                 <ul class="dropdown-menu message-dropdown">
-                    <li class="message-preview">
-                        <a href="#">
-                            <div class="media">
+                    {% for i in 'xxx' %}
+                        <li class="message-preview">
+                            <a href="#">
+                                <div class="media">
                                     <span class="pull-left">
                                         <img class="media-object" src="http://placehold.it/50x50" alt="">
                                     </span>
-
-                                <div class="media-body">
-                                    <h5 class="media-heading"><strong>John Smith</strong>
-                                    </h5>
-
-                                    <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-
-                                    <p>Lorem ipsum dolor sit amet, consectetur...</p>
+                                    <div class="media-body">
+                                        <h5 class="media-heading"><strong>Лолоша Ололоев</strong></h5>
+                                        <p class="small text-muted"><i class="fa fa-clock-o"></i> Вчера at 4:32 PM</p>
+                                        <p>Какое то очень важное сообщение...</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="message-preview">
-                        <a href="#">
-                            <div class="media">
-                                    <span class="pull-left">
-                                        <img class="media-object" src="http://placehold.it/50x50" alt="">
-                                    </span>
-
-                                <div class="media-body">
-                                    <h5 class="media-heading"><strong>John Smith</strong>
-                                    </h5>
-
-                                    <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-
-                                    <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                                </div>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="message-preview">
-                        <a href="#">
-                            <div class="media">
-                                    <span class="pull-left">
-                                        <img class="media-object" src="http://placehold.it/50x50" alt="">
-                                    </span>
-
-                                <div class="media-body">
-                                    <h5 class="media-heading"><strong>John Smith</strong>
-                                    </h5>
-
-                                    <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-
-                                    <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                                </div>
-                            </div>
-                        </a>
-                    </li>
+                            </a>
+                        </li>
+                    {% endfor %}
                     <li class="message-footer">
-                        <a href="#">Read All New Messages</a>
+                        <a href="#">Читать все новые сообщения</a>
                     </li>
                 </ul>
             </li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> <b
-                        class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-bell"></i> <b class="caret"></b>
+                </a>
                 <ul class="dropdown-menu alert-dropdown">
                     <li>
-                        <a href="#">Alert Name <span class="label label-default">Alert Badge</span></a>
+                        <a href="#">Уведомление <span class="label label-default">Знак</span></a>
                     </li>
                     <li>
-                        <a href="#">Alert Name <span class="label label-primary">Alert Badge</span></a>
+                        <a href="#">Уведомление <span class="label label-primary">Знак</span></a>
                     </li>
                     <li>
-                        <a href="#">Alert Name <span class="label label-success">Alert Badge</span></a>
+                        <a href="#">Уведомление <span class="label label-success">Знак</span></a>
                     </li>
                     <li>
-                        <a href="#">Alert Name <span class="label label-info">Alert Badge</span></a>
+                        <a href="#">Уведомление <span class="label label-info">Знак</span></a>
                     </li>
                     <li>
-                        <a href="#">Alert Name <span class="label label-warning">Alert Badge</span></a>
+                        <a href="#">Уведомление <span class="label label-warning">Знак</span></a>
                     </li>
                     <li>
-                        <a href="#">Alert Name <span class="label label-danger">Alert Badge</span></a>
+                        <a href="#">Уведомление <span class="label label-danger">Знак</span></a>
                     </li>
                     <li class="divider"></li>
                     <li>
-                        <a href="#">View All</a>
+                        <a href="#">Посмотреть все</a>
                     </li>
                 </ul>
             </li>
@@ -160,36 +124,36 @@
                 <li class="{% block menu_reserve_check %}{% endblock %}">
                     <a href="{% url 'inventory:reserve_check' %}"><i class="fa fa-fw fa-crosshairs"></i> По номеру брони</a>
                 </li>
-                <li class="{% block menu_charts %}{% endblock %}">
-                    <a href="{% url 'pages:charts' %}"><i class="fa fa-fw fa-bar-chart-o"></i> Charts</a>
-                </li>
-                <li class="{% block menu_tables %}{% endblock %}">
-                    <a href="{% url 'pages:tables' %}"><i class="fa fa-fw fa-table"></i> Tables</a>
-                </li>
-                <li class="{% block menu_forms %}{% endblock %}">
-                    <a href="{% url 'pages:forms' %}"><i class="fa fa-fw fa-edit"></i> Forms</a>
-                </li>
-                <li class="{% block menu_elements %}{% endblock %}">
-                    <a href="{% url 'pages:elements' %}"><i class="fa fa-fw fa-desktop"></i> Bootstrap Elements</a>
-                </li>
-                <li class="{% block menu_grid %}{% endblock %}">
-                    <a href="{% url 'pages:grid' %}"><i class="fa fa-fw fa-wrench"></i> Bootstrap Grid</a>
-                </li>
-                <li>
-                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i
-                            class="fa fa-fw fa-arrows-v"></i> Dropdown <i class="fa fa-fw fa-caret-down"></i></a>
-                    <ul id="demo" class="collapse">
-                        <li>
-                            <a href="#">Dropdown Item</a>
-                        </li>
-                        <li>
-                            <a href="#">Dropdown Item</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="{% block menu_blank %}{% endblock %}">
-                    <a href="{% url 'pages:blank' %}"><i class="fa fa-fw fa-file"></i> Blank Page</a>
-                </li>
+{#                <li class="{% block menu_charts %}{% endblock %}">#}
+{#                    <a href="{% url 'pages:charts' %}"><i class="fa fa-fw fa-bar-chart-o"></i> Charts</a>#}
+{#                </li>#}
+{#                <li class="{% block menu_tables %}{% endblock %}">#}
+{#                    <a href="{% url 'pages:tables' %}"><i class="fa fa-fw fa-table"></i> Tables</a>#}
+{#                </li>#}
+{#                <li class="{% block menu_forms %}{% endblock %}">#}
+{#                    <a href="{% url 'pages:forms' %}"><i class="fa fa-fw fa-edit"></i> Forms</a>#}
+{#                </li>#}
+{#                <li class="{% block menu_elements %}{% endblock %}">#}
+{#                    <a href="{% url 'pages:elements' %}"><i class="fa fa-fw fa-desktop"></i> Bootstrap Elements</a>#}
+{#                </li>#}
+{#                <li class="{% block menu_grid %}{% endblock %}">#}
+{#                    <a href="{% url 'pages:grid' %}"><i class="fa fa-fw fa-wrench"></i> Bootstrap Grid</a>#}
+{#                </li>#}
+{#                <li>#}
+{#                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i#}
+{#                            class="fa fa-fw fa-arrows-v"></i> Dropdown <i class="fa fa-fw fa-caret-down"></i></a>#}
+{#                    <ul id="demo" class="collapse">#}
+{#                        <li>#}
+{#                            <a href="#">Dropdown Item</a>#}
+{#                        </li>#}
+{#                        <li>#}
+{#                            <a href="#">Dropdown Item</a>#}
+{#                        </li>#}
+{#                    </ul>#}
+{#                </li>#}
+{#                <li class="{% block menu_blank %}{% endblock %}">#}
+{#                    <a href="{% url 'pages:blank' %}"><i class="fa fa-fw fa-file"></i> Blank Page</a>#}
+{#                </li>#}
             </ul>
         </div>
         <!-- /.navbar-collapse -->
