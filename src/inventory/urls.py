@@ -7,7 +7,10 @@ from .views import (ReserveView,
                     ReserveEquipmentCreateView,
                     ReserveEquipmentDeleteView,
                     ReserveSuccessView,
-                    ReserveCheckView)
+                    ReserveCheckView,
+                    ClientReadyView,
+                    ContractView,
+                    ContractPriceView)
 
 urlpatterns = patterns(
     '',
@@ -30,4 +33,15 @@ urlpatterns = patterns(
     url(r'^ea/$', EAView.as_view(), name='ea'),
 
     url(r'^reserve_check/$', ReserveCheckView.as_view(), name='reserve_check'),
+
+    url(r'^cashbox/$', TemplateView.as_view(template_name='inventory/cashbox.html'),
+        name='cashbox'),
+
+    # Таблица готовых к оплате клиентов
+    url(r'^cr/$', ClientReadyView.as_view(), name='cr'),
+
+    url(r'^contract/(?P<pk>[0-9]+)/$', ContractView.as_view(), name='contract'),
+
+    # Суммарная цена по договору
+    url(r'^contract/price/$', ContractPriceView.as_view(), name='contract_price'),
 )

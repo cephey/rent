@@ -1,7 +1,15 @@
 #coding:utf-8
 from django.contrib import admin
 
-from .models import EquipmentType, Equipment, PropertyType, Property, EA, Reserve
+from .models import (EquipmentType,
+                     Equipment,
+                     PropertyType,
+                     Property,
+                     EA,
+                     Reserve,
+                     Contract,
+                     Period,
+                     Prices)
 from .helpers import get_cache_props, get_cache_type
 from .mixins import PropertyMixin
 
@@ -19,10 +27,15 @@ class PropertyInline(admin.TabularInline):
     extra = 1
 
 
+class PricesInline(admin.TabularInline):
+    model = Prices
+    extra = 1
+
+
 @admin.register(Equipment)
 class EquipmentAdmin(PropertyMixin, admin.ModelAdmin):
     list_display = ('type', 'article', 'count', '_property')
-    inlines = [PropertyInline]
+    inlines = [PropertyInline, PricesInline]
 
     def response_add(self, request, new_object, post_url_continue=None):
         obj = self.after_saving_model_and_related_inlines(new_object)
@@ -103,3 +116,13 @@ class ReserveAdmin(admin.ModelAdmin):
                                             .select_related('ea__hash')
                                             .order_by('-count')])
     _reserve.short_description = u'Забронировано'
+
+
+@admin.register(Period)
+class PeriodAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Contract)
+class ContractAdmin(admin.ModelAdmin):
+    list_display = ('reserve', 'period', 'total', 'deposit', 'zip', 'active')

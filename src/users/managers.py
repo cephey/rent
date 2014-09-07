@@ -2,6 +2,7 @@
 from django.contrib.auth.models import BaseUserManager
 from django.shortcuts import get_object_or_404
 from django.db.models.loading import get_model
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.db import models
 
@@ -40,6 +41,13 @@ class UserManager(BaseUserManager):
         if Sms.objects.filter(user__id=id, code=code).exists():
             Sms.objects.filter(user__id=id, code=code).delete()
             self.filter(id=id).update(confirm=True)
+
+    def ready_for_pay(self):
+        Reserve = get_model('inventory', 'Reserve')
+        return [{'f': r.user.get_full_name(), 'r': r.id,
+                 'u': reverse('inventory:contract', kwargs={'pk': r.id})}
+                for r in Reserve.objects.filter(status=Reserve.RESERVE)
+                    .select_related('user')]
 
 
 class SmsManager(models.Manager):

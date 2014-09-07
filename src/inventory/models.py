@@ -28,9 +28,12 @@ class EquipmentType(models.Model):
 class Equipment(models.Model):
 
     article = models.CharField(u'Код товара', max_length=16)
-    type = models.ForeignKey('inventory.EquipmentType', verbose_name=u'Тип')
-    count = models.PositiveIntegerField(u'Количество', blank=True, default=0)
-    hash = models.CharField(u'Хеш', max_length=64, editable=False)
+    type = models.ForeignKey('inventory.EquipmentType', verbose_name=_('Type'))
+    count = models.PositiveIntegerField(_('Count'), blank=True, default=0)
+    periods = models.ManyToManyField('inventory.Period',
+                                     verbose_name=_('Prices'),
+                                     through='inventory.Prices')
+    hash = models.CharField(_('Hash'), max_length=64, editable=False)
 
     class Meta:
         ordering = ['type']
@@ -205,7 +208,54 @@ class ReserveEA(models.Model):
 @transaction.atomic
 def update_ea_count(sender, instance, **kwargs):
     ea = instance.ea
-    eq_sum = sum(Equipment.objects.filter(hash=ea.hash).values_list('count', flat=True))
+    eq_sum = sum(Equipment.objects.filter(hash=ea.hash)
+                 .values_list('count', flat=True))
     ea.count_out = sum([item.count for item in instance.ea.reserveea_set.all()])
     ea.count_in = eq_sum - ea.count_out
     ea.save()
+
+
+class Period(models. Model):
+    """
+    Периоды аренды
+    """
+    name = models.CharField(_('Period'), max_length=64, unique=True)
+
+    def __unicode__(self):
+        return unicode(self.name)
+
+
+class Prices(models.Model):
+
+    equipment = models.ForeignKey('inventory.Equipment')
+    period = models.ForeignKey('inventory.Period')
+    value = models.PositiveIntegerField()
+
+
+class Contract(models.Model):
+    """
+    Договор
+    """
+    MONEY = 'MON'
+    DOCUMENTS = 'DOC'
+    TYPES = (
+        (MONEY, u'Деньги'),
+        (DOCUMENTS, u'Документы'),
+    )
+
+    reserve = models.ForeignKey('inventory.Reserve')
+    period = models.ForeignKey('inventory.Period', help_text=_('Rental period'))
+    total = models.CharField(_('Total'), max_length=32, blank=True, null=True)
+    deposit = models.CharField(_('Deposit'), max_length=4,
+                               choices=TYPES, default=DOCUMENTS)
+    zip = models.CharField(_('Zip-package number'), max_length=16,
+                           blank=True, null=True)
+    active = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return u'Contract for Reserve № {} for a period {}. Summa = {} rub'\
+            .format(self.reserve_id, self.period, self.total)
+
+    class Meta:
+        verbose_name = _('contract')
+        verbose_name_plural = _('contracts')

@@ -99,7 +99,7 @@ DATABASES = {
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
 TIME_ZONE = 'Europe/Moscow'
-LANGUAGE_CODE = 'ru-RU'
+LANGUAGE_CODE = 'ru'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True

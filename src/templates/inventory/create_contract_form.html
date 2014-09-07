@@ -1,0 +1,109 @@
+{% extends 'inventory/cashbox.html' %}
+{% load css_class %}
+
+{% block form_extra %}
+
+    <h3>{{ fio }}</h3>
+
+    <form role="form" action="" method="post">{% csrf_token %}
+        <div id="err_block" style="display:none"></div>
+
+        {{ form.reserve }}
+        {{ form.active }}
+        <div class="form-group" data-url="{% url 'inventory:contract_price' %}">
+            {{ form.period|add_attributes:"form-control" }}
+            <p class="help-block">{{ form.period.help_text }}</p>
+        </div>
+        <div class="form-group input-group">
+            <span class="input-group-addon">
+                <i class="fa fa-rub"></i>
+            </span>
+            <input class="form-control" type="text" placeholder="Цена" name="fake_total" disabled>
+            <span class="input-group-addon">.00</span>
+            {{ form.total }}
+        </div>
+
+        <div id="deposit_wrap" style="display:none">
+            <div class="form-group">
+                {% for radio in form.deposit %}
+                    <label class="radio-inline" for="{{ radio.id_for_label }}">
+                        {{ radio.tag }}{{ radio.choice_label }}
+                    </label>
+                {% endfor %}
+            </div>
+            <div class="form-group input-group">
+                <span class="input-group-addon">
+                    <i class="fa fa-archive"></i>
+                </span>
+                {{ form.zip|add_attributes:"form-control" }}
+            </div>
+            <button class="btn btn-primary pull-right" type="submit">Завершить</button>
+        </div>
+
+    </form>
+
+{% endblock %}
+
+{% block form_button_extra %}{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        $(function () {
+
+            var get_error = function (container) {
+                container.hide();
+
+                var display = function (data) {
+                    var buf = '';
+                    for (var i in data) {
+                        buf += '<div class="alert alert-danger">' + data[i][0] + '</div>';
+                    }
+                    container.html(buf).show();
+                };
+                return {
+                    display: display
+                }
+            };
+
+            var change_period = function (e) {
+                var self = $(this);
+                var form = self.closest('form');
+                var total = form.find('input[name="total"]');
+                total.val('');
+                var fake_total = form.find('input[name="fake_total"]');
+                fake_total.val('');
+                var container = self.closest('.form-group');
+                var Error = get_error($('#err_block'));
+                var deposit = $('#deposit_wrap');
+                deposit.hide();
+                var price = $('input[name="total"]');
+                price.removeAttr('disabled');
+
+                $.ajax({
+                    url: container.attr('data-url'),
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data.status === 'success') {
+                            total.val(data.sum);
+                            fake_total.val(data.sum);
+                            deposit.show();
+                        } else {
+                            Error.display(data.errors);
+                        }
+                    },
+                    error: function (jqXHR) {
+                        Error.display({_: ['Сервер временно не доступен.']});
+                    }
+                });
+            };
+            $('select[name="period"]').on('change', change_period);
+        });
+    </script>
+{% endblock %}
+

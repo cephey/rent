@@ -16,3 +16,12 @@ rent
 > - cd /etc/nginx/sites-enabled
 > - sudo ln -s ~/works/rent/conf/rent
 > - sudo /etc/init.d/nginx restart
+
+
+# создать нового пользователя
+adduser <username>
+
+# дать права sudo пользователю <username>
+sudo usermod -a -G sudo <username>
+
+sudo apt-get install python-dev build-essential gettext

@@ -60,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return reverse('users:update', kwargs={'pk': self.id})
 
     def get_full_name(self):
-        full_name = '{} {} {}'.format(self.first_name, self.last_name, self.patronymic)
+        full_name = u'{} {} {}'.format(self.first_name, self.last_name, self.patronymic)
         return full_name.strip()
 
     def get_short_name(self):
