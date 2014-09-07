@@ -224,6 +224,10 @@ class Period(models. Model):
     def __unicode__(self):
         return unicode(self.name)
 
+    class Meta:
+        verbose_name = _('period')
+        verbose_name_plural = _('periods')
+
 
 class Prices(models.Model):
 

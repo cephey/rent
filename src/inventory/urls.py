@@ -14,9 +14,6 @@ from .views import (ReserveView,
 
 urlpatterns = patterns(
     '',
-    url(r'^$', TemplateView.as_view(template_name='inventory/all.html'),
-        name='all'),
-
     url(r'^reserve/(?P<pk>[0-9]+)/$', ReserveEquipmentCreateView.as_view(),
         name='reserve'),
     url(r'^reserve/confirm/(?P<pk>[0-9]+)/$', ReserveView.as_view(),
@@ -34,6 +31,7 @@ urlpatterns = patterns(
 
     url(r'^reserve_check/$', ReserveCheckView.as_view(), name='reserve_check'),
 
+    # страница кассы
     url(r'^cashbox/$', TemplateView.as_view(template_name='inventory/cashbox.html'),
         name='cashbox'),
 

@@ -46,13 +46,15 @@ class CreateClientForm(forms.ModelForm):
                     field.widget = forms.TextInput(attrs={
                         'placeholder': field.label,
                         'class': 'form-control'})
-        self.fields.get('email').widget = forms.HiddenInput()
 
     class Meta:
         model = User
         fields = ('email', 'first_name', 'last_name', 'patronymic', 'photo',
                   'passport', 'travel_passport', 'drive_license',
                   'phone', 'partner',)
+        widgets = {
+            'email': forms.HiddenInput(),
+        }
 
 
 class SmsConfirmForm(forms.Form):
@@ -64,12 +66,11 @@ class SmsConfirmForm(forms.Form):
 
 class CardCreateForm(forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        super(CardCreateForm, self).__init__(*args, **kwargs)
-        self.fields.get('user').widget = forms.HiddenInput()
-
     class Meta:
         model = Card
+        widgets = {
+            'user': forms.HiddenInput(),
+        }
 
 
 class CardCheckForm(forms.Form):
