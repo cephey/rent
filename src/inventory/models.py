@@ -1,4 +1,5 @@
 #coding:utf-8
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.signals import post_delete, post_save
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
@@ -10,11 +11,21 @@ from .managers import EAManager
 from helpers import get_cache_props, get_cache_type
 
 from collections import Counter
+from StringIO import StringIO
+from PIL import Image
+import uuid
+import os
 
 
 class EquipmentType(models.Model):
 
     name = models.CharField(u'Название', max_length=255)
+    image = models.ImageField(verbose_name=u'Иконка для приложения',
+                              upload_to='equipment_type/',
+                              default='',
+                              help_text=u'Картинка должна быть как можно'
+                                        u' ближе к квадратной и в формате'
+                                        u' PNG c прозрачным фоном')
 
     class Meta:
         ordering = ['name']
@@ -23,6 +34,37 @@ class EquipmentType(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            THUMBNAIL_SIZE = 96, 96
+            DJANGO_TYPE = self.image.file.content_type
+
+            if DJANGO_TYPE == 'image/jpeg':
+                PIL_TYPE = 'jpeg'
+                FILE_EXTENSION = 'jpg'
+            elif DJANGO_TYPE == 'image/png':
+                PIL_TYPE = 'png'
+                FILE_EXTENSION = 'png'
+
+            image = Image.open(StringIO(self.image.read()))
+            image.thumbnail(THUMBNAIL_SIZE, Image.ANTIALIAS)
+
+            temp_handle = StringIO()
+            image.save(temp_handle, PIL_TYPE)
+            temp_handle.seek(0)
+
+            filename = os.path.split(self.image.name)[~0]
+            new_filename = '{}.{}'.format(uuid.uuid4(), filename.split('.')[~0])
+
+            suf = SimpleUploadedFile(new_filename, temp_handle.read(), content_type=DJANGO_TYPE)
+
+            self.image.save('{}.{}'.format(os.path.splitext(suf.name)[0], FILE_EXTENSION), suf, save=False)
+
+        force_update = False
+        if self.id:
+            force_update = True
+        super(EquipmentType, self).save(force_update=force_update)
 
 
 class Equipment(models.Model):
