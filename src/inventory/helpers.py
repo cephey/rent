@@ -19,7 +19,7 @@ def get_cache_props(hash, format=True):
 
     if format:
         return ','.join([u'{}: {}'.format(name, val) for name, val in prop])
-    return {name: val for name, val in prop}
+    return [u'{} {}'.format(name, val) for name, val in prop]
 
 
 def get_cache_type(hash):
