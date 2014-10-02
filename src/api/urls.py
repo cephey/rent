@@ -6,7 +6,7 @@ from inventory_api import (EAResource,
                            EquipmentTypeResource,
                            ReserveResource,
                            ReserveEAResource)
-from user_api import UserResource
+from user_api import UserResource, CardResource
 
 from tastypie.api import Api
 
@@ -17,6 +17,7 @@ api.register(ReserveResource())
 api.register(ReserveEAResource())
 
 api.register(UserResource())
+api.register(CardResource())
 
 
 def http404(request):

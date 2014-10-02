@@ -123,7 +123,7 @@ class Sms(models.Model):
 
 class Card(models.Model):
 
-    user = models.ForeignKey('users.User')
+    user = models.ForeignKey('users.User', related_name='cards')
     article = models.CharField(u'Номер карты', max_length=16,
                                help_text=u'Сканируйте штрих код карты для '
                                          u'привязки ее к клиенту')
