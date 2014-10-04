@@ -6,7 +6,7 @@ from inventory_api import (EAResource,
                            EquipmentTypeResource,
                            ReserveResource,
                            ReserveEAResource)
-from user_api import UserResource, CardResource
+from user_api import UserResource, CardResource, RegUserResource
 
 from tastypie.api import Api
 
@@ -16,6 +16,7 @@ api.register(EquipmentTypeResource())
 api.register(ReserveResource())
 api.register(ReserveEAResource())
 
+api.register(RegUserResource())
 api.register(UserResource())
 api.register(CardResource())
 

@@ -10,11 +10,10 @@ class BaseResourceTestCase(ResourceTestCase):
 
     def setUp(self):
         super(BaseResourceTestCase, self).setUp()
-        self.email = '293013fa8d4c4b48@mail.ru'
-        self.user = User.objects.create(email=self.email)
+        self.user = User.objects.create(first_name='First', last_name='Last')
 
     def get_credentials(self):
-        return self.create_apikey(self.email, self.user.api_key.key)
+        return self.create_apikey(self.user.email, self.user.api_key.key)
 
 
 class ReserveResourceTest(BaseResourceTestCase):
@@ -27,7 +26,7 @@ class ReserveResourceTest(BaseResourceTestCase):
                                     authentication=self.get_credentials())
         self.assertHttpCreated(resp)
         self.assertEqual(Reserve.objects.count(), 1)
-        self.assertEqual(Reserve.objects.first().user.email, self.email)
+        self.assertEqual(Reserve.objects.first().user.email, self.user.email)
 
 
 class ReserveEAResourceTest(BaseResourceTestCase):
@@ -61,28 +60,65 @@ class ReserveEAResourceTest(BaseResourceTestCase):
 
 class UserResourceTest(BaseResourceTestCase):
 
-    def test_get_list(self):
-        self.email2 = 'rerge7gr5gerg@mail.ru'
-        self.user2 = User.objects.create(email=self.email2)
+    def setUp(self):
+        super(UserResourceTest, self).setUp()
+        self.first_name = u'Линус'
+        self.last_name = u'Торвальдс'
 
-        resp = self.api_client.get('/api/v1/users/', authentication=self.get_credentials())
+    def test_get_list(self):
+        self.user2 = User.objects.create(first_name=self.first_name,
+                                         last_name=self.last_name)
+
+        resp = self.api_client.get('/api/v1/users/',
+                                   authentication=self.get_credentials())
         objects = self.deserialize(resp)['objects']
         meta = self.deserialize(resp)['meta']
 
         self.assertEqual(len(objects), 2)
         self.assertEqual(meta['total_count'], 2)
 
-        self.assertEqual(objects[0]['email'], self.email2)
-        self.assertEqual(objects[1]['email'], self.email)
+        self.assertEqual(objects[0]['email'], self.user2.email)
+        self.assertEqual(objects[1]['email'], self.user.email)
 
     def test_get_detail(self):
         resp = self.api_client.get('/api/v1/users/{}/'.format(1),
                                    authentication=self.get_credentials())
         user = self.deserialize(resp)
-        self.assertEqual(user['email'], self.email)
+        self.assertEqual(user['email'], self.user.email)
         self.assertFalse(user['confirm'])
         self.assertTrue(user['is_active'])
         self.assertEqual(user['api_key']['key'], self.user.api_key.key)
+
+    def test_card_binding(self):
+        self.user2 = User.objects.create(first_name=self.first_name,
+                                         last_name=self.last_name)
+        self.art = '1324354657687980'
+        Card.objects.create(user=self.user, article=self.art)
+        Card.objects.create(user=self.user2, article='9870532321412331')
+
+        resp = self.api_client.get('/api/v1/users/',
+                                   data={'cards__article': self.art},
+                                   authentication=self.get_credentials())
+        objects = self.deserialize(resp)['objects']
+        meta = self.deserialize(resp)['meta']
+
+        self.assertEqual(len(objects), 1)
+        self.assertEqual(meta['total_count'], 1)
+
+        self.assertEqual(objects[0]['email'], self.user.email)
+        self.assertEqual(len(objects[0]['cards']), 1)
+        self.assertEqual(objects[0]['cards'][0]['article'], self.art)
+        self.assertEqual(objects[0]['api_key']['key'], self.user.api_key.key)
+
+    def test_create(self):
+        post_data = dict(first_name=self.first_name, last_name=self.last_name,
+                         phone='+79191234567')
+        resp = self.api_client.post('/api/v1/users/', data=post_data,
+                                    authentication=self.get_credentials())
+        self.assertHttpMethodNotAllowed(resp)
+
+
+class RegUserResourceTest(BaseResourceTestCase):
 
     def test_create(self):
         self.assertEqual(User.objects.count(), 1)
@@ -91,7 +127,7 @@ class UserResourceTest(BaseResourceTestCase):
         phone = '+79191234567'
 
         post_data = dict(first_name=first_name, last_name=last_name, phone=phone)
-        resp = self.api_client.post('/api/v1/users/', data=post_data,
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
                                     authentication=self.get_credentials())
         self.assertHttpCreated(resp)
         self.assertEqual(User.objects.count(), 2)
@@ -110,48 +146,24 @@ class UserResourceTest(BaseResourceTestCase):
         self.assertEqual(obj['api_key']['key'], new_user.api_key.key)
 
         # double request fail
-        resp = self.api_client.post('/api/v1/users/', data=post_data,
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
                                     authentication=self.get_credentials())
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
 
         # empty last_name fail
         post_data = dict(first_name=first_name, last_name='', phone=phone)
-        resp = self.api_client.post('/api/v1/users/', data=post_data,
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
                                     authentication=self.get_credentials())
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
 
         # wrong phone fail
         post_data = dict(first_name=first_name, last_name='WrongPhone', phone='123456')
-        resp = self.api_client.post('/api/v1/users/', data=post_data,
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
                                     authentication=self.get_credentials())
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
-
-    def test_card_binding(self):
-        self.art = '1324354657687980'
-        Card.objects.create(user=self.user, article=self.art)
-
-        self.email2 = 'rerge7gr5gerg@mail.ru'
-        self.user2 = User.objects.create(email=self.email2)
-        self.art2 = '9870532321412331'
-
-        Card.objects.create(user=self.user2, article=self.art2)
-
-        resp = self.api_client.get('/api/v1/users/',
-                                   data={'cards__article': self.art},
-                                   authentication=self.get_credentials())
-        objects = self.deserialize(resp)['objects']
-        meta = self.deserialize(resp)['meta']
-
-        self.assertEqual(len(objects), 1)
-        self.assertEqual(meta['total_count'], 1)
-
-        self.assertEqual(objects[0]['email'], self.email)
-        self.assertEqual(len(objects[0]['cards']), 1)
-        self.assertEqual(objects[0]['cards'][0]['article'], self.art)
-        self.assertEqual(objects[0]['api_key']['key'], self.user.api_key.key)
 
 
 class CardResourceTest(BaseResourceTestCase):
@@ -160,14 +172,17 @@ class CardResourceTest(BaseResourceTestCase):
         super(CardResourceTest, self).setUp()
         self.art = '1324354657687980'
         Card.objects.create(user=self.user, article=self.art)
+        self.first_name = u'Линус'
+        self.last_name = u'Торвальдс'
 
     def test_get_list(self):
-        self.email2 = 'rerge7gr5gerg@mail.ru'
-        self.user2 = User.objects.create(email=self.email2)
+        self.user2 = User.objects.create(first_name=self.first_name,
+                                         last_name=self.last_name)
         self.art2 = '9870532321412331'
         Card.objects.create(user=self.user2, article=self.art2)
 
-        resp = self.api_client.get('/api/v1/cards/', authentication=self.get_credentials())
+        resp = self.api_client.get('/api/v1/cards/',
+                                   authentication=self.get_credentials())
         objects = self.deserialize(resp)['objects']
         meta = self.deserialize(resp)['meta']
 
@@ -175,15 +190,15 @@ class CardResourceTest(BaseResourceTestCase):
         self.assertEqual(meta['total_count'], 2)
 
         self.assertEqual(objects[0]['article'], self.art)
-        self.assertEqual(objects[0]['user']['email'], self.email)
+        self.assertEqual(objects[0]['user']['email'], self.user.email)
 
         self.assertEqual(objects[1]['article'], self.art2)
-        self.assertEqual(objects[1]['user']['email'], self.email2)
+        self.assertEqual(objects[1]['user']['email'], self.user2.email)
 
     def test_get_detail(self):
         resp = self.api_client.get('/api/v1/cards/{}/'.format(1),
                                    authentication=self.get_credentials())
         card = self.deserialize(resp)
         self.assertEqual(card['article'], self.art)
-        self.assertEqual(card['user']['email'], self.email)
+        self.assertEqual(card['user']['email'], self.user.email)
         self.assertEqual(card['user']['api_key']['key'], self.user.api_key.key)
