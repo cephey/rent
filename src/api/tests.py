@@ -84,6 +84,51 @@ class UserResourceTest(BaseResourceTestCase):
         self.assertTrue(user['is_active'])
         self.assertEqual(user['api_key']['key'], self.user.api_key.key)
 
+    def test_create(self):
+        self.assertEqual(User.objects.count(), 1)
+        first_name = u'Линус'
+        last_name = u'Торвальдс'
+        phone = '+79191234567'
+
+        post_data = dict(first_name=first_name, last_name=last_name, phone=phone)
+        resp = self.api_client.post('/api/v1/users/', data=post_data,
+                                    authentication=self.get_credentials())
+        self.assertHttpCreated(resp)
+        self.assertEqual(User.objects.count(), 2)
+        obj = self.deserialize(resp)
+
+        new_user = User.objects.get(first_name='Линус')
+
+        self.assertEqual(new_user.first_name, first_name)
+        self.assertEqual(new_user.last_name, last_name)
+        self.assertEqual(new_user.phone, phone)
+
+        self.assertEqual(obj['first_name'], first_name)
+        self.assertEqual(obj['last_name'], last_name)
+        self.assertEqual(obj['phone'], phone)
+
+        self.assertEqual(obj['api_key']['key'], new_user.api_key.key)
+
+        # double request fail
+        resp = self.api_client.post('/api/v1/users/', data=post_data,
+                                    authentication=self.get_credentials())
+        self.assertHttpBadRequest(resp)
+        self.assertEqual(User.objects.count(), 2)
+
+        # empty last_name fail
+        post_data = dict(first_name=first_name, last_name='', phone=phone)
+        resp = self.api_client.post('/api/v1/users/', data=post_data,
+                                    authentication=self.get_credentials())
+        self.assertHttpBadRequest(resp)
+        self.assertEqual(User.objects.count(), 2)
+
+        # wrong phone fail
+        post_data = dict(first_name=first_name, last_name='WrongPhone', phone='123456')
+        resp = self.api_client.post('/api/v1/users/', data=post_data,
+                                    authentication=self.get_credentials())
+        self.assertHttpBadRequest(resp)
+        self.assertEqual(User.objects.count(), 2)
+
     def test_card_binding(self):
         self.art = '1324354657687980'
         Card.objects.create(user=self.user, article=self.art)

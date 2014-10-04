@@ -6,7 +6,7 @@ django-debug-toolbar==1.2.1
 django-devserver==0.8.0
 -e git://github.com/sehmaschine/django-grappelli.git@af105fd5519b63de8a406ec15804e80b333622a3#egg=django_grappelli
 django-redis==3.7.1
--e git://github.com/cephey/django-tastypie.git@802e834e666bdb7067065b346be9e840160dc116#egg=django_tastypie-master
+django-tastypie==0.12.0
 easy-thumbnails==2.1
 python-dateutil==2.2
 python-mimeparse==0.1.4

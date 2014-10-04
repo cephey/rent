@@ -52,9 +52,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = getattr(settings, 'USERNAME_FIELD', 'email')
     REQUIRED_FIELDS = []
 
+    def save(self, *args, **kwargs):
+        if not self.email:
+            self.email = '{}@rent.ru'.format(uuid.uuid4())
+        super(User, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+        unique_together = (('first_name', 'last_name', 'patronymic'),)
 
     def get_absolute_url(self):
         return reverse('users:update', kwargs={'pk': self.id})
