@@ -27,11 +27,11 @@ class ShortUserResource(ModelResource):
         queryset = User.objects.order_by('-date_joined')
         resource_name = 'users'
         list_allowed_methods = ['get']
-        detail_allowed_methods = ['get']
+        detail_allowed_methods = ['get', 'put']
         filtering = {
             'cards': ALL_WITH_RELATIONS
         }
-        # authorization = Authorization()
+        authorization = Authorization()
         authentication = MultiAuthentication(PtitsynApiKeyAuthentication(),
                                              SessionAuthentication())
         always_return_data = True

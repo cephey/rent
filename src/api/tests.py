@@ -110,6 +110,26 @@ class UserResourceTest(BaseResourceTestCase):
         self.assertEqual(objects[0]['cards'][0]['article'], self.art)
         self.assertEqual(objects[0]['api_key']['key'], self.user.api_key.key)
 
+    def test_update(self):
+        new_first_name = u'Линус'
+        new_last_name = u'Торвальдс'
+        new_phone = '192837465'
+
+        self.assertNotEqual(self.user.first_name, new_first_name)
+        self.assertNotEqual(self.user.last_name, new_last_name)
+        self.assertNotEqual(self.user.phone, new_phone)
+
+        post_data = dict(first_name=new_first_name, last_name=new_last_name, phone=new_phone)
+        resp = self.api_client.put('/api/v1/users/{}/'.format(self.user.id),
+                                   data=post_data,
+                                   authentication=self.get_credentials())
+        self.assertHttpOK(resp)
+
+        user = User.objects.get(id=self.user.id)
+        self.assertEqual(user.first_name, new_first_name)
+        self.assertEqual(user.last_name, new_last_name)
+        self.assertEqual(user.phone, new_phone)
+
     def test_create(self):
         post_data = dict(first_name=self.first_name, last_name=self.last_name,
                          phone='+79191234567')
@@ -127,8 +147,7 @@ class RegUserResourceTest(BaseResourceTestCase):
         phone = '+79191234567'
 
         post_data = dict(first_name=first_name, last_name=last_name, phone=phone)
-        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
-                                    authentication=self.get_credentials())
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
         self.assertHttpCreated(resp)
         self.assertEqual(User.objects.count(), 2)
         obj = self.deserialize(resp)
@@ -146,22 +165,19 @@ class RegUserResourceTest(BaseResourceTestCase):
         self.assertEqual(obj['api_key']['key'], new_user.api_key.key)
 
         # double request fail
-        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
-                                    authentication=self.get_credentials())
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
 
         # empty last_name fail
         post_data = dict(first_name=first_name, last_name='', phone=phone)
-        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
-                                    authentication=self.get_credentials())
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
 
         # wrong phone fail
         post_data = dict(first_name=first_name, last_name='WrongPhone', phone='123456')
-        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
-                                    authentication=self.get_credentials())
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
 

@@ -29,7 +29,8 @@ class UserValidation(Validation):
                 return {'phone': 'Не верно указан номер телефона'}
 
         # проверка уникальности имени и фамилии
-        if User.objects.filter(first_name=first_name, last_name=last_name).exists():
-            return {'__all__': 'Пользователь с переданными Именем и Фамилией уже существуют'}
+        if request.method.upper() != 'PUT':
+            if User.objects.filter(first_name=first_name, last_name=last_name).exists():
+                return {'__all__': 'Пользователь с переданными Именем и Фамилией уже существуют'}
 
         return {}
