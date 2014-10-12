@@ -34,3 +34,23 @@ class PtitsynApiKeyAuthentication(ApiKeyAuthentication):
             request.user = user
 
         return key_auth_check
+
+
+class AutoregApiKeyAuthentication(ApiKeyAuthentication):
+
+    def is_authenticated(self, request, **kwargs):
+        """
+        Плюшевая аутентификация для авторегов
+        """
+        try:
+            email, api_key = self.extract_credentials(request)
+        except ValueError:
+            return self._unauthorized()
+
+        if not email or not api_key:
+            return self._unauthorized()
+
+        if email != 'autoreg@rent.ru' or api_key != 'a78b786576544c36b2fa6ad339bd460a':
+            return self._unauthorized()
+
+        return True

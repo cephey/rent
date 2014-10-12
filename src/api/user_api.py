@@ -1,10 +1,10 @@
 #coding:utf-8
 from users.models import User, Card
-from api.authentication import PtitsynApiKeyAuthentication
+from api.authentication import PtitsynApiKeyAuthentication, AutoregApiKeyAuthentication
 from api.validators import UserValidation
 
 from tastypie.resources import ModelResource, ALL_WITH_RELATIONS
-from tastypie.authentication import MultiAuthentication, SessionAuthentication, Authentication
+from tastypie.authentication import MultiAuthentication, SessionAuthentication
 from tastypie.authorization import Authorization
 from tastypie.models import ApiKey
 from tastypie import fields
@@ -28,9 +28,6 @@ class ShortUserResource(ModelResource):
         resource_name = 'users'
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get', 'put']
-        filtering = {
-            'cards': ALL_WITH_RELATIONS
-        }
         authorization = Authorization()
         authentication = MultiAuthentication(PtitsynApiKeyAuthentication(),
                                              SessionAuthentication())
@@ -45,14 +42,17 @@ class UserResource(ShortUserResource):
                                    readonly=True)
 
 
-class RegUserResource(ShortUserResource):
+class RegUserResource(UserResource):
 
-    class Meta(ShortUserResource.Meta):
+    class Meta(UserResource.Meta):
         resource_name = 'autoreg'
-        list_allowed_methods = ['post']
+        list_allowed_methods = ['get', 'post']
         detail_allowed_methods = None
-        authorization = Authorization()
-        authentication = Authentication()
+        filtering = {
+            'cards': ALL_WITH_RELATIONS
+        }
+        authentication = MultiAuthentication(AutoregApiKeyAuthentication(),
+                                             SessionAuthentication())
 
 
 class ShortCardResource(ModelResource):

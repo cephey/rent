@@ -3,12 +3,13 @@ from tastypie.resources import ModelResource
 from inventory.models import EA, EquipmentType, Reserve, ReserveEA
 from inventory.helpers import get_cache_props
 from user_api import UserResource
-from .authentication import PtitsynApiKeyAuthentication
+from .authentication import PtitsynApiKeyAuthentication, AutoregApiKeyAuthentication
 
 from tastypie import http
 from tastypie import fields
-from tastypie.authorization import DjangoAuthorization
 from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.authorization import DjangoAuthorization
+from tastypie.authentication import MultiAuthentication, SessionAuthentication
 
 
 class EquipmentTypeResource(ModelResource):
@@ -30,6 +31,8 @@ class EAResource(ModelResource):
         fields = ['count_in', 'hash']
         list_allowed_methods = ['get']
         detail_allowed_methods = ['get']
+        authentication = MultiAuthentication(AutoregApiKeyAuthentication(),
+                                             SessionAuthentication())
 
     def dehydrate(self, bundle):
         bundle = super(EAResource, self).dehydrate(bundle)
@@ -46,8 +49,8 @@ class ReserveResource(ModelResource):
         resource_name = 'reserve'
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get']
-        authentication = PtitsynApiKeyAuthentication()
         authorization = DjangoAuthorization()
+        authentication = PtitsynApiKeyAuthentication()
 
 
 class ReserveEAResource(ModelResource):
@@ -60,8 +63,8 @@ class ReserveEAResource(ModelResource):
         resource_name = 'reserve_item'
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get']
-        authentication = PtitsynApiKeyAuthentication()
         authorization = DjangoAuthorization()
+        authentication = PtitsynApiKeyAuthentication()
 
     def alter_deserialized_detail_data(self, request, data):
         # проверка может ли пользователь забронировать

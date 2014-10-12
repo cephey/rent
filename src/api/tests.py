@@ -3,7 +3,7 @@ from django.test import TestCase
 from tastypie.test import ResourceTestCase
 from users.models import User, Card
 
-from inventory.models import Reserve, ReserveEA, EA, EquipmentType
+from inventory.models import Reserve, ReserveEA, EA, EquipmentType, Equipment
 
 
 class BaseResourceTestCase(ResourceTestCase):
@@ -14,6 +14,9 @@ class BaseResourceTestCase(ResourceTestCase):
 
     def get_credentials(self):
         return self.create_apikey(self.user.email, self.user.api_key.key)
+
+    def get_autoreg_credentials(self):
+        return self.create_apikey('autoreg@rent.ru', 'a78b786576544c36b2fa6ad339bd460a')
 
 
 class ReserveResourceTest(BaseResourceTestCase):
@@ -58,6 +61,46 @@ class ReserveEAResourceTest(BaseResourceTestCase):
         self.assertEqual(ReserveEA.objects.count(), 1)
 
 
+class EAResourceTest(BaseResourceTestCase):
+
+    def setUp(self):
+        super(EAResourceTest, self).setUp()
+        # create Equipment
+        self.eq_type = EquipmentType.objects.create(name='test_snowboard')
+        self.ea = EA.objects.create(type=self.eq_type, count_in=2, hash='test_hash')
+
+    def test_get_list(self):
+        self.eq_type2 = EquipmentType.objects.create(name='test_ski')
+        self.ea2 = EA.objects.create(type=self.eq_type2, count_in=5, hash='test_hash2')
+
+        # anonymous fail
+        resp = self.api_client.get('/api/v1/ea/')
+        self.assertHttpUnauthorized(resp)
+
+        # auth_user ok
+        resp = self.api_client.get('/api/v1/ea/',
+                                   authentication=self.get_autoreg_credentials())
+        self.assertHttpOK(resp)
+        objects = self.deserialize(resp)['objects']
+        meta = self.deserialize(resp)['meta']
+
+        self.assertEqual(len(objects), 2)
+        self.assertEqual(meta['total_count'], 2)
+
+        self.assertEqual(objects[0]['hash'], self.ea2.hash)
+        self.assertEqual(objects[1]['hash'], self.ea.hash)
+
+    def test_get_detail(self):
+        self.assertEqual(EA.objects.count(), 1)
+        resp = self.api_client.get('/api/v1/ea/{}/'.format(self.ea.id),
+                                   authentication=self.get_autoreg_credentials())
+        self.assertHttpOK(resp)
+        ea = self.deserialize(resp)
+        self.assertEqual(ea['count_in'], self.ea.count_in)
+        self.assertEqual(ea['hash'], self.ea.hash)
+        self.assertEqual(ea['type']['name'], self.eq_type.name)
+
+
 class UserResourceTest(BaseResourceTestCase):
 
     def setUp(self):
@@ -69,8 +112,14 @@ class UserResourceTest(BaseResourceTestCase):
         self.user2 = User.objects.create(first_name=self.first_name,
                                          last_name=self.last_name)
 
+        # anonymous fail
+        resp = self.api_client.get('/api/v1/users/')
+        self.assertHttpUnauthorized(resp)
+
+        # auth_user ok
         resp = self.api_client.get('/api/v1/users/',
                                    authentication=self.get_credentials())
+        self.assertHttpOK(resp)
         objects = self.deserialize(resp)['objects']
         meta = self.deserialize(resp)['meta']
 
@@ -83,32 +132,12 @@ class UserResourceTest(BaseResourceTestCase):
     def test_get_detail(self):
         resp = self.api_client.get('/api/v1/users/{}/'.format(1),
                                    authentication=self.get_credentials())
+        self.assertHttpOK(resp)
         user = self.deserialize(resp)
         self.assertEqual(user['email'], self.user.email)
         self.assertFalse(user['confirm'])
         self.assertTrue(user['is_active'])
         self.assertEqual(user['api_key']['key'], self.user.api_key.key)
-
-    def test_card_binding(self):
-        self.user2 = User.objects.create(first_name=self.first_name,
-                                         last_name=self.last_name)
-        self.art = '1324354657687980'
-        Card.objects.create(user=self.user, article=self.art)
-        Card.objects.create(user=self.user2, article='9870532321412331')
-
-        resp = self.api_client.get('/api/v1/users/',
-                                   data={'cards__article': self.art},
-                                   authentication=self.get_credentials())
-        objects = self.deserialize(resp)['objects']
-        meta = self.deserialize(resp)['meta']
-
-        self.assertEqual(len(objects), 1)
-        self.assertEqual(meta['total_count'], 1)
-
-        self.assertEqual(objects[0]['email'], self.user.email)
-        self.assertEqual(len(objects[0]['cards']), 1)
-        self.assertEqual(objects[0]['cards'][0]['article'], self.art)
-        self.assertEqual(objects[0]['api_key']['key'], self.user.api_key.key)
 
     def test_update(self):
         new_first_name = u'Линус'
@@ -147,7 +176,8 @@ class RegUserResourceTest(BaseResourceTestCase):
         phone = '+79191234567'
 
         post_data = dict(first_name=first_name, last_name=last_name, phone=phone)
-        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
+                                    authentication=self.get_autoreg_credentials())
         self.assertHttpCreated(resp)
         self.assertEqual(User.objects.count(), 2)
         obj = self.deserialize(resp)
@@ -165,21 +195,50 @@ class RegUserResourceTest(BaseResourceTestCase):
         self.assertEqual(obj['api_key']['key'], new_user.api_key.key)
 
         # double request fail
-        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
+                                    authentication=self.get_autoreg_credentials())
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
 
         # empty last_name fail
         post_data = dict(first_name=first_name, last_name='', phone=phone)
-        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
+                                    authentication=self.get_autoreg_credentials())
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
 
         # wrong phone fail
         post_data = dict(first_name=first_name, last_name='WrongPhone', phone='123456')
-        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data,
+                                    authentication=self.get_autoreg_credentials())
         self.assertHttpBadRequest(resp)
         self.assertEqual(User.objects.count(), 2)
+
+        # anonymous fail
+        post_data = dict(first_name=first_name, last_name='Anonymous', phone=phone)
+        resp = self.api_client.post('/api/v1/autoreg/', data=post_data)
+        self.assertHttpUnauthorized(resp)
+
+    def test_card_binding(self):
+        self.art = '1324354657687980'
+        Card.objects.create(user=self.user, article=self.art)
+
+        self.user2 = User.objects.create(first_name=u'Линус', last_name=u'Торвальдс')
+        Card.objects.create(user=self.user2, article='9870532321412331')
+
+        resp = self.api_client.get('/api/v1/autoreg/',
+                                   data={'cards__article': self.art},
+                                   authentication=self.get_autoreg_credentials())
+        objects = self.deserialize(resp)['objects']
+        meta = self.deserialize(resp)['meta']
+
+        self.assertEqual(len(objects), 1)
+        self.assertEqual(meta['total_count'], 1)
+
+        self.assertEqual(objects[0]['email'], self.user.email)
+        self.assertEqual(len(objects[0]['cards']), 1)
+        self.assertEqual(objects[0]['cards'][0]['article'], self.art)
+        self.assertEqual(objects[0]['api_key']['key'], self.user.api_key.key)
 
 
 class CardResourceTest(BaseResourceTestCase):
